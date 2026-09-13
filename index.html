@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BYD Brasil Radar</title>
+<script>(function(){var r=document.documentElement,t=null;try{t=localStorage.getItem("bydTheme");}catch(e){}
+if(t!=="light"&&t!=="dark"){t=r.getAttribute("data-theme");}
+if(t!=="light"&&t!=="dark"){t=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches)?"light":"dark";}
+r.setAttribute("data-theme",t);})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --ink:#12211A; --paper:#F1F6F2; --teal:#0B6E3D; --teal-lt:#E2F2E8;
+  --line:#D4E6DA; --muted:#5A6E63; --card:#FFFFFF; --amber:#B7791F; --emer:#12A06B;
+  --cell-empty:#FFFFFF; --glow:none;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans','Microsoft JhengHei','PingFang TC',system-ui,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px 64px}
+/* Masthead */
+.masthead{border-bottom:3px solid var(--ink);padding:22px 0 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}
+.brandblock{display:flex;align-items:center;gap:14px}
+.brand{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;letter-spacing:.5px;line-height:1}
+.brand span{color:var(--teal)}
+.brand-divider{width:1px;height:40px;background:var(--line)}
+.subbrand{display:flex;align-items:center;gap:8px;color:var(--teal)}
+.subbrand .radar{flex:none}
+.subbrand-txt{font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--ink);line-height:1.05}
+.date-block{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.report-date{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;color:var(--teal);letter-spacing:1px;line-height:1.1}
+.date-window{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted)}
+.date-nav{width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.date-nav-label{font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.date-nav select{font-family:'IBM Plex Mono',monospace;font-size:12.5px;padding:5px 10px;border:1.5px solid var(--teal);border-radius:3px;background:#fff;color:var(--ink);cursor:pointer}
+/* Language toggle */
+.lang-toggle{margin-left:auto;display:flex;flex-wrap:wrap;border:1.5px solid var(--teal);border-radius:3px;overflow:hidden;flex-shrink:0}
+.lang-toggle button{font-family:'Archivo','Microsoft JhengHei','PingFang TC',sans-serif;font-size:12px;font-weight:600;letter-spacing:.5px;padding:5px 11px;border:0;border-left:1px solid var(--teal-lt);background:#fff;color:var(--teal);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;min-height:26px}
+.lang-toggle button:first-child{border-left:0}
+.lang-toggle button.on{background:var(--teal);color:#fff}
+/* At a glance */
+.glance{margin-top:24px}
+h2.sec{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:1.2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+h2.sec .hint{font-family:'IBM Plex Sans',sans-serif;font-weight:400;font-size:12px;letter-spacing:0;text-transform:none;color:var(--muted)}
+.summary{font-size:16px;max-width:860px;margin-bottom:18px}
+.summary-list{list-style:none;margin:0;padding:0}
+.summary-list li{position:relative;padding-left:20px;margin-bottom:10px;line-height:1.65}
+.summary-list li:last-child{margin-bottom:0}
+.summary-list li::before{content:"\25B8";position:absolute;left:2px;top:2px;color:var(--teal);font-size:13px}
+.heat{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:13px}
+.heat th{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:12px;color:var(--muted);padding:6px 8px;text-align:center}
+.heat th.rowh{text-align:left}
+.heat td.rowh{font-family:'IBM Plex Sans',sans-serif;font-weight:500;font-size:13px;padding:6px 8px;white-space:nowrap}
+.heat td.cell{text-align:center;padding:0}
+.heat td.cell button{width:100%;border:1px solid var(--line);background:#fff;padding:9px 4px;font:inherit;color:var(--ink);cursor:pointer;min-width:44px}
+.heat td.cell button:hover{outline:2px solid var(--teal);outline-offset:-2px}
+.heat td.cell button:disabled{cursor:default;color:#B9C2BD}
+.heat td.cell button:disabled:hover{outline:none}
+/* Filter bar */
+.filters{position:sticky;top:0;background:var(--paper);padding:14px 0 12px;margin-top:28px;border-bottom:1px solid var(--line);z-index:5}
+.tabs,.pills{display:flex;flex-wrap:wrap;gap:8px}
+.tabs{margin-bottom:10px}
+.tabs button{font-family:'Archivo','Microsoft JhengHei',sans-serif;font-weight:500;font-size:13.5px;padding:7px 14px;border:1.5px solid var(--ink);background:#fff;cursor:pointer;border-radius:2px;color:var(--ink)}
+.tabs button.on{background:var(--ink);color:#fff}
+.tabs button .n{font-family:'IBM Plex Mono',monospace;font-size:11.5px;opacity:.7;margin-left:5px}
+.pills button{font-size:12.5px;padding:5px 13px;border:1px solid var(--muted);background:transparent;color:var(--muted);cursor:pointer;border-radius:999px}
+.pills button.on{background:var(--teal);border-color:var(--teal);color:#fff}
+/* Cards */
+.cards{margin-top:20px;display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--emer);padding:16px 18px}
+.card.threat{border-left-color:#C0392B}
+.card.opp{border-left-color:var(--teal)}
+.card .top{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;margin-bottom:6px}
+.card .co{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px}
+.card .loc{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted)}
+.card .tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--teal);border:1px solid var(--teal-lt);background:var(--teal-lt);padding:2px 8px;border-radius:999px;margin-left:auto}
+.card .tag.low{color:var(--amber);background:#FBF3E4;border-color:#F0E3C8}
+.card h3{font-size:16.5px;font-weight:600;line-height:1.4;margin-bottom:8px}
+.card ul{list-style:none;margin-bottom:10px}
+.card ul li{font-size:13.5px;color:#324038;padding-left:16px;position:relative;margin-bottom:3px}
+.card ul li::before{content:"–";position:absolute;left:0;color:var(--teal)}
+.angle{background:var(--teal-lt);border-left:3px solid var(--teal);border-radius:0 3px 3px 0;padding:9px 12px;font-size:13.5px}
+.angle b{font-family:'Archivo',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:2px}
+.src{margin-top:9px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted)}
+.src a{color:var(--teal);text-decoration:none;border-bottom:1px solid var(--teal-lt)}
+.src a:hover{border-bottom-color:var(--teal)}
+.empty{padding:48px 0;text-align:center;color:var(--muted);font-style:italic;display:none}
+footer{margin-top:48px;border-top:1px solid var(--line);padding-top:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:1.7}
+@media (max-width:640px){
+  .brand{font-size:20px}
+  .brand-divider{display:none}
+  .date-block{margin-left:0;align-items:flex-start}
+  .report-date{font-size:22px}
+  .lang-toggle{margin-left:0}
+  .heat{font-size:11.5px}
+  .heat th{font-size:10.5px;padding:4px 2px}
+  .heat td.rowh{font-size:11.5px;padding:4px 4px}
+  .heat td.cell button{min-width:0;padding:7px 2px}
+}
+/* ===== Tab navigation ===== */
+.tabnav{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px;border-bottom:2px solid var(--ink);padding-bottom:0}
+.tabnav button{font-family:'Archivo','Microsoft JhengHei',sans-serif;font-weight:600;font-size:13px;letter-spacing:.4px;padding:9px 15px;border:1.5px solid var(--line);border-bottom:0;background:#fff;color:var(--muted);cursor:pointer;border-radius:6px 6px 0 0;position:relative;top:2px}
+.tabnav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tabnav button:not(.on):hover{color:var(--teal);border-color:var(--teal)}
+.tabpanel{display:none}
+.tabpanel.on{display:block}
+.subnav{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 4px}
+.subnav button{font-size:12.5px;padding:6px 13px;border:1px solid var(--muted);background:transparent;color:var(--muted);cursor:pointer;border-radius:999px}
+.subnav button.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.subnav.sub2{margin:8px 0 4px}
+.subnav.sub2 button{font-size:11.5px;padding:4px 11px}
+.subpanel{display:none}
+.subpanel.on{display:block}
+/* Shared dashboard bits */
+.dash-h{font-family:'Archivo','Microsoft JhengHei',sans-serif;font-weight:700;font-size:17px;margin:18px 0 4px;color:var(--ink)}
+.dash-note{font-size:13px;color:var(--muted);max-width:860px;margin-bottom:14px;line-height:1.6}
+.dash-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px}
+.chart-box{position:relative;height:340px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:16px}
+.chart-box.tall{height:430px}
+.dq{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);margin:2px 0}
+.dq.high{color:#0B6E3D;border-color:var(--teal-lt);background:var(--teal-lt)}
+.dq.medium{color:var(--amber);background:#FBF3E4;border-color:#F0E3C8}
+.dq.low{color:#C0392B;background:#FBEAE8;border-color:#F3D2CD}
+/* KPI tiles */
+.kpi-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:13px 15px}
+.kpi .k{font-family:'Archivo',sans-serif;font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+.kpi .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:500;color:var(--teal);line-height:1.1;display:block}
+.kpi .s{font-size:11.5px;color:var(--muted);display:block;margin-top:4px;line-height:1.45}
+/* Tables */
+.dtable{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:14px;background:var(--card)}
+.dtable th{font-family:'Archivo','Microsoft JhengHei',sans-serif;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:2px solid var(--line)}
+.dtable td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.dtable td.num{font-family:'IBM Plex Mono',monospace;text-align:right;white-space:nowrap}
+.dtable tr.pick{cursor:pointer}
+.dtable tr.pick:hover{background:var(--teal-lt)}
+.dtable tr.sel{background:var(--teal-lt)}
+.dtable tr.me td{font-weight:600}
+.up{color:#0B6E3D}.down{color:#C0392B}
+.tbl-scroll{overflow-x:auto;margin-bottom:14px}
+.dash-sel{font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 10px;border:1.5px solid var(--teal);border-radius:4px;background:#fff;color:var(--ink);cursor:pointer;margin-bottom:12px}
+/* Opportunity / entity cards */
+.opp-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));margin-bottom:14px}
+.opp{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--emer);border-radius:4px;padding:13px 15px}
+.opp h4{font-family:'Archivo','Microsoft JhengHei',sans-serif;font-size:14px;margin-bottom:6px;color:var(--ink)}
+.opp p{font-size:13px;color:#324038;line-height:1.55}
+.opp .oh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+.opp .oh h4{margin-bottom:0}
+.odate{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap}
+.opp .impl{margin-top:9px}
+.reg-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(310px,1fr))}
+.reg{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:12px 14px}
+.reg .rt{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:5px}
+.reg .rname{font-family:'Archivo','Microsoft JhengHei',sans-serif;font-weight:700;font-size:13.5px}
+.reg .rmeta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted)}
+.reg p{font-size:12.5px;color:#324038;margin:3px 0;line-height:1.5}
+.reg ul{margin:4px 0 4px 18px}
+.reg ul li{font-size:12.5px;color:#324038;line-height:1.5}
+.impl{background:var(--teal-lt);border-left:3px solid var(--teal);border-radius:0 3px 3px 0;padding:7px 10px;font-size:12.5px;margin-top:6px}
+.impl b{font-family:'Archivo','Microsoft JhengHei',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:2px}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.5px}
+.badge.threat{color:#C0392B;background:#FBEAE8;border:1px solid #F3D2CD}
+.badge.opp{color:#0B6E3D;background:var(--teal-lt);border:1px solid var(--teal-lt)}
+.badge.signal{color:#5A6E63;background:#EDF2EF;border:1px solid var(--line)}
+.srclist{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px}
+.srclist a{color:var(--teal);text-decoration:none;border-bottom:1px solid var(--teal-lt)}
+.comp-anim{animation:compIn .28s ease}
+@keyframes compIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* Split layout for the brand ranking tab */
+.px-layout{display:grid;grid-template-columns:minmax(340px,5fr) minmax(380px,7fr);gap:20px;align-items:start}
+.px-right{position:sticky;top:12px}
+@media (max-width:980px){.px-layout{grid-template-columns:1fr}.px-right{position:static}}
+@media (max-width:640px){
+  .tabnav button{font-size:11.5px;padding:8px 10px}
+  .chart-box{height:300px;padding:8px}
+  .chart-box.tall{height:380px}
+}
+/* Caveat banner */
+.caveat{background:#FBF3E4;border:1px solid #F0E3C8;border-left:4px solid var(--amber);border-radius:0 4px 4px 0;padding:10px 13px;font-size:12.5px;color:#6B5418;margin-bottom:16px;line-height:1.6}
+.caveat b{display:block;font-family:'Archivo','Microsoft JhengHei',sans-serif;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;color:var(--amber)}
+/* Theme toggle */
+.theme-btn{font-family:'IBM Plex Mono',monospace;font-size:14px;line-height:1;padding:5px 10px;border:1.5px solid var(--teal);border-radius:3px;background:var(--card);color:var(--teal);cursor:pointer;box-shadow:var(--glow)}
+.theme-btn:hover{background:var(--teal-lt)}
+/* ===== Dark theme ===== */
+[data-theme="dark"]{
+  --ink:#D6EDE2; --paper:#0A1512; --teal:#34D399; --teal-lt:#0E2A20;
+  --line:#1D3A2E; --muted:#5F8474; --card:#0E1F19; --amber:#E0A93B; --emer:#34D399;
+  --cell-empty:#0A1A15; --glow:0 0 12px rgba(52,211,153,.40);
+}
+[data-theme="dark"] .masthead{border-bottom-color:var(--line);position:relative}
+[data-theme="dark"] .masthead::before,[data-theme="dark"] .masthead::after{content:"";position:absolute;top:4px;width:15px;height:15px;border-top:2px solid var(--teal);pointer-events:none}
+[data-theme="dark"] .masthead::before{left:0;border-left:2px solid var(--teal)}
+[data-theme="dark"] .masthead::after{right:0;border-right:2px solid var(--teal)}
+[data-theme="dark"] .lang-toggle button:not(.on),[data-theme="dark"] .date-nav select,[data-theme="dark"] .dash-sel{background:var(--card);color:var(--ink)}
+[data-theme="dark"] .lang-toggle button{border-left-color:var(--line)}
+[data-theme="dark"] .lang-toggle button.on,[data-theme="dark"] .pills button.on,[data-theme="dark"] .subnav button.on{color:#04221A}
+[data-theme="dark"] .heat td.cell button{background:var(--cell-empty);color:var(--ink)}
+[data-theme="dark"] .tabs button{background:var(--card);border-color:var(--muted);color:var(--ink)}
+[data-theme="dark"] .tabs button.on{background:var(--teal);color:#04221A;border-color:var(--teal)}
+[data-theme="dark"] .tabnav{border-bottom:1px solid var(--line)}
+[data-theme="dark"] .tabnav button{background:transparent;border:0;border-radius:0;top:1px;color:var(--muted);padding:9px 4px;margin-right:16px}
+[data-theme="dark"] .tabnav button.on{background:transparent;color:var(--teal);border-bottom:2px solid var(--teal);box-shadow:none}
+[data-theme="dark"] .tabnav button:not(.on):hover{color:var(--teal);border-color:transparent}
+[data-theme="dark"] .subnav button.on{box-shadow:0 0 12px rgba(52,211,153,.35)}
+[data-theme="dark"] .card ul li,[data-theme="dark"] .opp p,[data-theme="dark"] .reg p,[data-theme="dark"] .reg ul li{color:#A9C9BB}
+[data-theme="dark"] .dq{background:var(--card)}
+[data-theme="dark"] .dq.high{color:#34D399}
+[data-theme="dark"] .dq.medium{background:#241C0C;border-color:#3A2E12}
+[data-theme="dark"] .card .tag.low{background:#241C0C;border-color:#3A2E12}
+[data-theme="dark"] .dq.low,[data-theme="dark"] .badge.threat{color:#F0997B;background:#2A1512;border-color:#5A2A22}
+[data-theme="dark"] .badge.opp{color:#34D399}
+[data-theme="dark"] .badge.signal{color:#8FC4AE;background:#12241D}
+[data-theme="dark"] .caveat{background:#241C0C;border-color:#3A2E12;color:#D9C18A}
+[data-theme="dark"] .up{color:#4ADE80}
+[data-theme="dark"] .down{color:#F0997B}
+[data-theme="dark"] .report-date{text-shadow:0 0 10px rgba(52,211,153,.5)}
+[data-theme="dark"] .subbrand .radar{filter:drop-shadow(0 0 6px rgba(52,211,153,.55))}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="brandblock">
+    <span class="brand">BYD <span>BRASIL</span></span>
+    <span class="brand-divider"></span>
+    <span class="subbrand">
+      <svg class="radar" viewBox="0 0 40 40" width="32" height="32" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="20" cy="20" r="9" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".5"/><path d="M20 20 L20 3 A17 17 0 0 1 34 12 Z" fill="currentColor" opacity=".18"/><line x1="20" y1="20" x2="34" y2="12" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="29" cy="14" r="2.4" fill="currentColor"/></svg>
+      <span class="subbrand-txt">Market<br>Radar</span>
+    </span>
+  </div>
+  <div class="date-block">
+    <span class="report-date">2026-09-13</span>
+    <span class="date-window" id="windowLbl">資料窗口：2026 年 1–8 月累計</span>
+    <span class="date-window">updated 2026-09-13 (UTC-3)</span>
+  </div>
+  <div class="date-nav">
+    <span class="date-nav-label" id="archiveLabel">歷史報告</span>
+    <select id="archiveSel" onchange="if(this.value!=='#') window.location=this.value">
+      <option value="#" selected>2026-09-13</option>
+    </select>
+    <button class="theme-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark / light" title="Dark / Light"><span id="themeIcon">☾</span></button>
+    <div class="lang-toggle" id="langToggle"></div>
+  </div>
+</header>
+
+<nav class="tabnav" id="tabnav"></nav>
+
+<!-- ===== 1. MARKET NEWS ===== -->
+<section class="tabpanel on" id="tab-news">
+<section class="glance">
+  <h2 class="sec" style="margin-top:22px"><span id="glanceTitle">重點摘要</span> <span class="hint" id="glanceHint">— 點數字篩選</span></h2>
+  <div class="summary" id="summary"></div>
+  <table class="heat" id="heat"></table>
+</section>
+<nav class="filters" id="filters">
+  <div class="tabs" id="tabs"></div>
+  <div class="pills" id="pills"></div>
+</nav>
+<main>
+  <div class="cards" id="cards"></div>
+  <div class="empty" id="empty"></div>
+</main>
+</section>
+
+<!-- ===== 2. BYD ===== -->
+<section class="tabpanel" id="tab-byd">
+  <h2 class="dash-h" id="bydTitle">BYD 戰情</h2>
+  <div class="subnav" id="bydSubnav"></div>
+
+  <div class="subpanel on" id="sub-bstrat">
+    <p class="dash-note" id="bStratNote"></p>
+    <div class="opp-grid" id="bOppGrid"></div>
+  </div>
+
+  <div class="subpanel" id="sub-bvol">
+    <p class="dash-note" id="bVolNote"></p>
+    <div class="kpi-grid" id="bKpi"></div>
+    <div class="chart-box"><canvas id="bVolChart"></canvas></div>
+    <div class="srclist" id="bVolSrc"></div>
+  </div>
+
+  <div class="subpanel" id="sub-bmodel">
+    <p class="dash-note" id="bModelNote"></p>
+    <div class="caveat" id="bModelCaveat"></div>
+    <div class="tbl-scroll"><table class="dtable" id="bModelTable"></table></div>
+  </div>
+
+  <div class="subpanel" id="sub-bplant">
+    <p class="dash-note" id="bPlantNote"></p>
+    <div class="kpi-grid" id="bPlantKpi"></div>
+    <div class="tbl-scroll"><table class="dtable" id="bPlantTable"></table></div>
+    <div class="srclist" id="bPlantSrc"></div>
+  </div>
+</section>
+
+<!-- ===== 3. BRAZIL MARKET ===== -->
+<section class="tabpanel" id="tab-market">
+  <h2 class="dash-h" id="marketTitle">巴西車市大環境</h2>
+  <div class="subnav" id="mktSubnav"></div>
+
+  <div class="subpanel on" id="sub-mtotal">
+    <p class="dash-note" id="mTotalNote"></p>
+    <div class="kpi-grid" id="mKpi"></div>
+    <div class="caveat" id="mCaveat"></div>
+    <div class="srclist" id="mTotalSrc"></div>
+  </div>
+
+  <div class="subpanel" id="sub-melec">
+    <p class="dash-note" id="mElecNote"></p>
+    <div class="dash-meta" id="mElecMeta"></div>
+    <div class="chart-box"><canvas id="mElecChart"></canvas></div>
+    <div class="tbl-scroll"><table class="dtable" id="mElecTable"></table></div>
+    <div class="srclist" id="mElecSrc"></div>
+  </div>
+</section>
+
+<!-- ===== 4. TOP 10 RIVALS ===== -->
+<section class="tabpanel" id="tab-top10">
+  <h2 class="dash-h" id="topTitle">主要競品 — 上牌量前十名</h2>
+  <p class="dash-note" id="topNote"></p>
+  <div class="dash-meta" id="topMeta"></div>
+  <div class="px-layout">
+    <div class="px-left">
+      <div class="tbl-scroll"><table class="dtable" id="topTable"></table></div>
+    </div>
+    <div class="px-right">
+      <h3 class="dash-h" style="margin-top:0"><span id="topDetailName">—</span> <span class="dash-meta" id="topDetailMeta"></span></h3>
+      <div id="topDq"></div>
+      <div class="chart-box"><canvas id="topChart"></canvas></div>
+      <div id="topFacts"></div>
+      <div class="srclist" id="topSrc"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 5. CHINESE BRANDS ===== -->
+<section class="tabpanel" id="tab-china">
+  <h2 class="dash-h" id="chinaTitle">中國品牌雷達</h2>
+  <p class="dash-note" id="chinaNote"></p>
+  <div class="subnav" id="chinaTypes"></div>
+  <div id="chinaBody"></div>
+</section>
+
+<!-- ===== 6. REGULATORY ===== -->
+<section class="tabpanel" id="tab-reg">
+  <h2 class="dash-h" id="regTitle">法規與關稅</h2>
+  <p class="dash-note" id="regNote"></p>
+  <div class="subnav" id="regSubnav"></div>
+
+  <div class="subpanel on" id="sub-rtariff">
+    <p class="dash-note" id="rTariffNote"></p>
+    <div class="chart-box"><canvas id="tariffChart"></canvas></div>
+    <div class="tbl-scroll"><table class="dtable" id="tariffTable"></table></div>
+    <div class="srclist" id="rTariffSrc"></div>
+  </div>
+
+  <div class="subpanel" id="sub-rrules">
+    <div id="regBody"></div>
+  </div>
+</section>
+
+<footer id="foot"></footer>
+</div>
+
+<script>
+/* =========================================================================
+   BYD BRASIL RADAR — data layer
+   Every figure below carries a source link and a data-quality marker.
+   Base language of content strings = zh-Hant; *_en / *_pt override when set.
+   ========================================================================= */
+
+var META = {
+  report_date: "2026-09-13",
+  base_period: "2026 年 1–8 月累計（Fenabrave）",
+  summary: "BYD 在巴西已經從「進口電動車品牌」變成「本地量產的主流品牌」。2026 年 1–8 月累計 146,930 台、市佔 7.9%，在 Fenabrave 品牌榜排到第 4，5 月首度超車 Hyundai；8 月單月 24,467 台是進入巴西以來的最高月份，輕型車市佔衝到 9.3%。卡馬薩里（Camaçari, BA）工廠開線九個月組裝滿 10 萬台，年產能 15 萬台、二期上看 30 萬台，並已拿到阿根廷與墨西哥各 5 萬台、合計 10 萬台的出口訂單。零售端由 Dolphin Mini 扛旗：上半年零售 29,665 台，把長年冠軍 Hyundai Creta（26,113 台）擠下來，連四個月拿下零售銷量第一，單一車型就佔 BYD 銷量的 38.4%。大環境同向：ABVE 統計 7 月電動化車款市佔達 21%，上半年 215,023 台、年增 125%，遠高於整體車市的 20%。真正的變數在成本面——Gecex-Camex 的關稅階梯在 2026 年 7 月到頂，BEV／PHEV／HEV 一律 35%，SKD 同步 35%，CKD 只剩到 2026 年底的 14% 窗口，2027 年 1 月起也是 35%；誰有本地產能誰活，這正是卡馬薩里的戰略意義。競爭面則是兩層夾擊：上有 Fiat、VW、Chevrolet 三家年銷 20 萬台以上的在地巨頭，下有 15–16 家已正式營運的中國品牌（GWM 已排進前十、Omoda & Jaecoo 喊 2026 年 5 萬台、Leapmotor 要在 Goiana 本地組裝），Dongfeng、BAIC、Lepas 也已確認進場。",
+  summary_en: "BYD has moved from 'imported EV brand' to locally-built mainstream player in Brazil. 146,930 units and 7.9% share for Jan-Aug 2026 put it 4th on the Fenabrave brand table, passing Hyundai for the first time in May. August set a record 24,467 units and 9.3% of light vehicles. The Camacari plant in Bahia hit 100,000 assembled units in nine months, with 150k/yr capacity, a 300k phase two, and 100,000 export units booked for Argentina and Mexico. Dolphin Mini led retail with 29,665 units in H1, beating the Hyundai Creta's 26,113. The macro backdrop helps: ABVE put electrified share at 21% in July, with 215,023 units in H1, up 125% against a market up 20%. The cost variable is tariffs: the Gecex-Camex ramp tops out at 35% for BEV, PHEV and HEV in July 2026, SKD included; only CKD keeps 14% through end-2026 before going to 35% in January 2027. Local capacity is now the whole game. Competition squeezes from both sides: Fiat, VW and Chevrolet above, and 15-16 Chinese brands already trading below, with Dongfeng, BAIC and Lepas confirmed to follow.",
+  base_period_pt: "Acumulado jan-ago 2026 (Fenabrave)",
+  summary_pt: "A BYD deixou de ser uma \"marca importadora de elétricos\" no Brasil e virou uma fabricante nacional de porte. São 146.930 unidades e 7,9% de participação no acumulado de janeiro a agosto de 2026, o que coloca a marca em 4º lugar no ranking Fenabrave — em maio ela passou a Hyundai pela primeira vez. Agosto marcou 24.467 unidades, o melhor mês da marca no país, com 9,3% do mercado de leves. A fábrica de Camaçari (BA) chegou a 100 mil veículos montados em nove meses de operação, tem capacidade de 150 mil unidades por ano, segunda etapa projetada para 300 mil, e já garantiu 100 mil unidades em pedidos de exportação: 50 mil para a Argentina e 50 mil para o México. No varejo quem puxa é o Dolphin Mini: 29.665 unidades no primeiro semestre, tirando do topo o Hyundai Creta (26.113) e liderando por quatro meses seguidos — um único modelo responde por 38,4% das vendas da marca. O pano de fundo ajuda: a ABVE aponta 21% de participação dos eletrificados em julho e 215.023 unidades no primeiro semestre, alta de 125% contra um mercado que cresceu 20%. A variável de custo é tarifária: a escada do Gecex-Camex chega ao teto de 35% para BEV, PHEV e HEV em julho de 2026, incluindo SKD; só o CKD mantém 14% até o fim de 2026 antes de ir a 35% em janeiro de 2027. Capacidade local virou o jogo inteiro. A concorrência aperta dos dois lados: Fiat, VW e Chevrolet acima, e 15 a 16 marcas chinesas já operando abaixo, com Dongfeng, BAIC e Lepas com entrada confirmada."
+};
+
+var SECTORS = {
+  byd:   {label:"BYD 動態",        label_en:"BYD moves",         label_pt:"BYD"},
+  local: {label:"在地製造與供應鏈", label_en:"Local manufacturing", label_pt:"Produção local"},
+  policy:{label:"政策·關稅·電動化", label_en:"Policy & tariffs",   label_pt:"Política & tarifas"},
+  top10: {label:"前十大品牌",       label_en:"Top-10 brands",      label_pt:"Top 10 marcas"},
+  china: {label:"中國品牌",         label_en:"Chinese brands",     label_pt:"Marcas chinesas"}
+};
+
+var REGIONS = {
+  natl:{label:"全國",            short:"全國",  label_en:"Nationwide", short_en:"Nat'l",  label_pt:"Nacional",         short_pt:"BR"},
+  se:  {label:"東南部 SP·RJ·MG", short:"東南",  label_en:"Southeast",  short_en:"SE",     label_pt:"Sudeste SP·RJ·MG", short_pt:"SE"},
+  ne:  {label:"東北部 BA·PE",    short:"東北",  label_en:"Northeast",  short_en:"NE",     label_pt:"Nordeste BA·PE",   short_pt:"NE"},
+  co:  {label:"中西部 GO·DF",    short:"中西",  label_en:"Centre-West",short_en:"CW",     label_pt:"Centro-Oeste GO·DF",short_pt:"CO"},
+  s:   {label:"南部 PR·SC·RS",   short:"南部",  label_en:"South",      short_en:"S",      label_pt:"Sul PR·SC·RS",     short_pt:"S"}
+};
+
+/* ---------- News items ---------- */
+var NEWS = [
+{sector:"byd",region:"ne",company:"BYD Camaçari",location:"Camaçari, BA",impact:"Opportunity",as_of:"2026",
+ headline:"卡馬薩里工廠開線九個月組裝滿 10 萬台，年底拚三班制 24 小時運轉",
+ headline_en:"Camacari hits 100,000 units assembled in nine months; pushing for round-the-clock three-shift running",
+ headline_pt:"Camaçari chega a 100 mil veículos montados em nove meses e mira três turnos 24 horas até o fim do ano",
+ key_points:["年產能 15 萬台，第二期規劃上看 30 萬台","現有員工逾 4,100 人，再招募 1,600 人以啟動第三班","本地組裝四款車：Dolphin Mini、Dolphin、Song Pro、King"],
+ key_points_pt:["Capacidade de 150 mil unidades por ano, com segunda etapa projetada para 300 mil","Mais de 4.100 funcionários e recrutamento de outros 1.600 para abrir o terceiro turno","Quatro modelos montados localmente: Dolphin Mini, Dolphin, Song Pro e King"],
+ insight:"這是 BYD 在巴西唯一真正的護城河。2026 年 7 月關稅到頂 35% 之後，進口車的成本結構被抬高，卡馬薩里的產能就是 BYD 與其他中國品牌拉開差距的關鍵。",
+ insight_pt:"Esta é a única barreira de entrada real da BYD no Brasil. Com a tarifa no teto de 35% a partir de julho de 2026, a estrutura de custo do importado sobe — e a capacidade de Camaçari é o que separa a BYD das demais marcas chinesas.",
+ source_name:"Canal VE / BYD do Brasil",source_url:"https://canalve.com.br/byd-ja-distribuiu-363-veiculos-montados-fabrica-camacari/"},
+
+{sector:"byd",region:"ne",company:"BYD Camaçari",location:"Camaçari, BA",impact:"Opportunity",as_of:"2026-03-13",
+ headline:"卡馬薩里拿下 10 萬台出口訂單：阿根廷 5 萬台、墨西哥 5 萬台",
+ headline_en:"Camacari books 100,000 export units: 50k to Argentina, 50k to Mexico",
+ headline_pt:"Camaçari garante 100 mil unidades em pedidos de exportação: 50 mil para a Argentina e 50 mil para o México",
+ key_points:["2026 年 3 月 13 日宣布","巴西廠從內需基地升級為拉美區域出口樞紐"],
+ key_points_pt:["Anunciado em 13 de março de 2026","A planta brasileira deixa de ser só base de mercado interno e vira hub regional de exportação na América Latina"],
+ insight:"出口訂單把產能利用率的風險攤掉了——即使巴西內需轉弱，卡馬薩里仍有基本盤，這讓二期擴產到 30 萬台的決策風險下降。",
+ insight_pt:"Os pedidos de exportação diluem o risco de ociosidade: mesmo se a demanda interna brasileira esfriar, Camaçari mantém volume de base — o que reduz o risco da decisão de expandir para 300 mil unidades na segunda etapa.",
+ source_name:"Exame",source_url:"https://exame.com/mundo/fabrica-da-byd-em-camacari-recebe-pedidos-de-100-mil-veiculos-para-exportacao/"},
+
+{sector:"byd",region:"natl",company:"BYD",location:"Brasil",impact:"Opportunity",as_of:"2026-08",
+ headline:"8 月單月 24,467 台創進入巴西以來新高，輕型車市佔 9.3%",
+ headline_en:"August sets an all-time Brazil record of 24,467 units, 9.3% of light vehicles",
+ headline_pt:"Agosto marca recorde histórico no Brasil com 24.467 unidades e 9,3% do mercado de leves",
+ key_points:["1–8 月累計 146,930 台","市佔率首度站上 9% 以上"],
+ key_points_pt:["146.930 unidades no acumulado de janeiro a agosto","Participação de mercado passa de 9% pela primeira vez"],
+ insight:"9.3% 的單月市佔已經逼近 Chevrolet 的年度水準（10.7%）。若第三班上線、產能釋放，第 3 名之爭在 2027 年就會發生。",
+ insight_pt:"Os 9,3% de um único mês já se aproximam do patamar anual da Chevrolet (10,7%). Com o terceiro turno e a capacidade liberada, a disputa pelo 3º lugar acontece já em 2027.",
+ source_name:"BYD do Brasil",source_url:"https://www.byd.com/br/byd-lider-varejo-automotivo-brasil-2026"},
+
+{sector:"byd",region:"natl",company:"BYD",location:"Brasil",impact:"Signal",as_of:"2026",
+ headline:"2025 全年約 11.2 萬台排第 8；2026 年目標約 18 萬台（年增上看 50%）",
+ headline_en:"About 112,000 units and 8th place in 2025; 2026 target is roughly 180,000, up as much as 50%",
+ headline_pt:"Cerca de 112 mil unidades e 8º lugar em 2025; a meta para 2026 é de aproximadamente 180 mil, alta de até 50%",
+ key_points:["1–8 月已達 146,930 台，進度約為全年目標的 82%","若維持 8 月的 24,467 台月速，全年可望超越 18 萬台目標"],
+ key_points_pt:["As 146.930 unidades de janeiro a agosto representam cerca de 82% da meta anual","Mantido o ritmo de agosto (24.467/mês), a meta de 180 mil deve ser superada"],
+ insight:"目標達成率的推算屬本站計算，非官方宣告。實際仍受第三班上線時點與 7 月後關稅轉嫁幅度影響。",
+ insight_pt:"O cálculo de atingimento da meta é estimativa própria deste painel, não um número oficial. O resultado real depende de quando o terceiro turno entra e de quanto da tarifa pós-julho é repassado ao preço.",
+ source_name:"Portal N10",source_url:"https://portaln10.com.br/automoveis/byd-meta-vendas-fora-china-2027-brasil-352358/",confidence:"low"},
+
+{sector:"byd",region:"natl",company:"BYD",location:"Brasil",impact:"Opportunity",as_of:"2026-05",
+ headline:"2026 年 5 月首度超越 Hyundai，年度累計排名升上第 4",
+ headline_en:"Passed Hyundai for the first time in May 2026, lifting the YTD ranking to 4th",
+ headline_pt:"Superou a Hyundai pela primeira vez em maio de 2026 e subiu ao 4º lugar no acumulado do ano",
+ key_points:["進入前四是中國品牌在巴西的歷史新高","前方僅剩 Fiat、Volkswagen、Chevrolet 三家在地老牌"],
+ key_points_pt:["Entrar no top 4 é a melhor posição já alcançada por uma marca chinesa no Brasil","À frente restam apenas Fiat, Volkswagen e Chevrolet, todas com produção local consolidada"],
+ insight:"BYD 已經不是在跟其他中國品牌競爭，而是直接進入巴西主流品牌的正面戰場。",
+ insight_pt:"A BYD já não disputa com as outras marcas chinesas: ela entrou no confronto direto com as marcas mainstream do mercado brasileiro.",
+ source_name:"Terra Mobilidade",source_url:"https://www.terra.com.br/mobilidade/byd-deixa-hyundai-para-tras-e-alcanca-posicao-historica-no-brasil-chinesas-avancam-entre-as-lideres,c81cb6b18e2160cd258dc168c2bc4899v970i3sx.html"},
+
+{sector:"byd",region:"natl",company:"BYD Dolphin Mini",location:"Brasil",impact:"Opportunity",as_of:"2026-H1",
+ headline:"Dolphin Mini 上半年零售 29,665 台，擠下長年冠軍 Hyundai Creta（26,113 台）",
+ headline_en:"Dolphin Mini took 29,665 retail units in H1, unseating the long-time leader Hyundai Creta at 26,113",
+ headline_pt:"Dolphin Mini faz 29.665 unidades no varejo no 1º semestre e destrona o Hyundai Creta (26.113)",
+ key_points:["連續四個月拿下零售（varejo）銷量第一","單一車型佔 BYD 品牌銷量的 38.4%","單一車型在零售市場的市佔超過 5%"],
+ key_points_pt:["Líder do varejo por quatro meses consecutivos","Um único modelo responde por 38,4% das vendas da BYD","Sozinho, o modelo passa de 5% do mercado de varejo"],
+ insight:"零售市場（個人買家）不像車隊／租賃有大宗折讓，是品牌真實需求的溫度計。Dolphin Mini 奪冠代表 BYD 的品牌接受度已經跨過門檻。",
+ insight_pt:"O varejo (pessoa física) não tem os descontos de volume de frota e locadora, então é o melhor termômetro da demanda real pela marca. O Dolphin Mini na liderança mostra que a barreira de aceitação da BYD já foi vencida.",
+ source_name:"Auto+ TV / Canal VE",source_url:"https://www.automaistv.com.br/vendas-e-precos/rascunho-byd-dolphin-mini-carro-mais-vendido-varejo-2026/"},
+
+{sector:"byd",region:"natl",company:"BYD",location:"Brasil",impact:"Opportunity",as_of:"2026",
+ headline:"巴西純電銷量前十名中，有五款是 BYD",
+ headline_en:"Five of Brazil's ten best-selling BEVs are BYD models",
+ headline_pt:"Cinco dos dez elétricos mais vendidos do Brasil são da BYD",
+ key_points:["Q1 2026：Dolphin Mini 14,757 台，為第二名 Dolphin（4,381 台）的三倍以上","Song 家族 6 月 4,029 台，超越多家百年車廠"],
+ key_points_pt:["1º trimestre de 2026: Dolphin Mini com 14.757 unidades, mais que o triplo do 2º colocado, o Dolphin (4.381)","A família Song fez 4.029 unidades em junho, superando montadoras centenárias"],
+ insight:"純電級距幾乎是 BYD 的主場，真正的成長空間反而在 PHEV 與混動——那裡 Omoda 5 混動、GWM Haval H6 正在搶食。",
+ insight_pt:"O segmento 100% elétrico já é praticamente domínio da BYD; o espaço real de crescimento está em PHEV e híbridos — e é lá que o Omoda 5 híbrido e o GWM Haval H6 estão avançando.",
+ source_name:"Canal VE",source_url:"https://canalve.com.br/carros-eletricos-mais-vendidos-brasil-2026-veja-ranking/"},
+
+{sector:"policy",region:"natl",company:"Gecex-Camex",location:"Brasília, DF",impact:"Threat",as_of:"2026-07",
+ headline:"進口關稅階梯 2026 年 7 月到頂：BEV／PHEV／HEV 一律 35%",
+ headline_en:"Import tariff ramp tops out in July 2026: BEV, PHEV and HEV all at 35%",
+ headline_pt:"Escada tarifária de importação chega ao teto em julho de 2026: BEV, PHEV e HEV todos a 35%",
+ key_points:["BEV：10% → 18% → 25% → 35%（2024/01、2024/07、2025/07、2026/07）","PHEV：12% → 20% → 28% → 35%","HEV：15% → 25% → 30% → 35%","SKD 半散裝件自 2026 年 7 月起同為 35%","CKD 全散裝件維持 14% 至 2026 年底，2027 年 1 月起調為 35%"],
+ key_points_pt:["BEV: 10% → 18% → 25% → 35% (jan/2024, jul/2024, jul/2025, jul/2026)","PHEV: 12% → 20% → 28% → 35%","HEV: 15% → 25% → 30% → 35%","SKD (semidesmontado) também vai a 35% a partir de julho de 2026","CKD (desmontado) fica em 14% até o fim de 2026 e sobe para 35% em janeiro de 2027"],
+ insight:"CKD 的 14% 窗口只剩到 2026 年底，這是所有中國品牌「本地化倒數計時器」。沒有在 2027 年前把本地化率拉起來的品牌，成本結構會立刻惡化。",
+ insight_pt:"A janela de 14% do CKD vai só até o fim de 2026 — é o relógio de contagem regressiva da nacionalização para todas as marcas chinesas. Quem não subir o índice de conteúdo local até 2027 vê a estrutura de custo piorar de imediato.",
+ source_name:"Primo Auto / CNN Brasil",source_url:"https://primoauto.com.br/imposto-de-importacao-de-eletricos-chega-a-35-em-julho-de-2026-o-que-muda"},
+
+{sector:"policy",region:"natl",company:"ABVE",location:"Brasil",impact:"Opportunity",as_of:"2026-07",
+ headline:"7 月電動化車款市佔達 21%，全年上看 45 萬台",
+ headline_en:"Electrified share reached 21% in July; ABVE expects the year to pass 450,000 units",
+ headline_pt:"Eletrificados chegam a 21% de participação em julho; ABVE projeta mais de 450 mil unidades no ano",
+ key_points:["上半年電動化累計 215,023 台","BEV 90,626（42.2%）、PHEV 76,400（35.5%）、HEV Flex 24,078（11.2%）、HEV 23,919（11.1%）","上半年整體車市 +20%，電動化 +125%","6 月市佔 18.3%，7 月 21%"],
+ key_points_pt:["215.023 eletrificados no acumulado do 1º semestre","BEV 90.626 (42,2%), PHEV 76.400 (35,5%), HEV Flex 24.078 (11,2%), HEV 23.919 (11,1%)","No 1º semestre o mercado total cresceu 20% e os eletrificados 125%","Participação de 18,3% em junho e 21% em julho"],
+ insight:"電動化滲透率的成長速度是整體車市的六倍，這是 BYD 最大的順風。但 PHEV 佔比 35.5% 說明巴西消費者仍在意續航焦慮——BYD 的 DM-i 產品線在這裡有結構性優勢。",
+ insight_pt:"Os eletrificados crescem seis vezes mais rápido que o mercado total — é o maior vento a favor da BYD. Mas os 35,5% de PHEV mostram que a ansiedade de autonomia ainda pesa no Brasil, e aí a linha DM-i tem vantagem estrutural.",
+ source_name:"ABVE",source_url:"https://abve.org.br/eletrificados-conquistam-21-de-participacao-de-mercado-em-julho-e-devem-passar-de-450-mil-este-ano/"},
+
+{sector:"top10",region:"natl",company:"Fenabrave",location:"Brasil",impact:"Signal",as_of:"2026-08",
+ headline:"1–8 月品牌榜：Fiat、Volkswagen、Chevrolet 穩居前三，BYD 第 4、GWM 第 10",
+ headline_en:"Jan-Aug brand table: Fiat, VW and Chevrolet hold the top three; BYD 4th and GWM 10th",
+ headline_pt:"Ranking de marcas jan-ago: Fiat, Volkswagen e Chevrolet no topo; BYD em 4º e GWM em 10º",
+ key_points:["前十名中已有兩家中國品牌（BYD、GWM）","Fiat 368,419 台、市佔 19.9%","8 月整體上牌量年增 16.87%"],
+ key_points_pt:["Duas marcas chinesas já estão no top 10 (BYD e GWM)","Fiat com 368.419 unidades e 19,9% de participação","Emplacamentos totais de agosto crescem 16,87% na comparação anual"],
+ insight:"前三名合計市佔 47.3%，仍是三分天下的結構；但第 4 到第 10 名之間差距不大，BYD 只要再多 5 萬台就能挑戰 Chevrolet。",
+ insight_pt:"As três primeiras somam 47,3% do mercado e o topo segue tripartido. Mas da 4ª à 10ª posição as distâncias são curtas: com cerca de 50 mil unidades a mais, a BYD já disputa com a Chevrolet.",
+ source_name:"Carrolens (Fenabrave) / AutoRanking",source_url:"https://carrolens.com.br/rankings/2026"},
+
+{sector:"top10",region:"natl",company:"Fiat",location:"Brasil",impact:"Threat",as_of:"2026",
+ headline:"Fiat Strada 1–8 月 111,736 台，續居單一車型冠軍",
+ headline_en:"Fiat Strada took 111,736 units Jan-Aug, still the single best-selling model",
+ headline_pt:"Fiat Strada faz 111.736 unidades de jan a ago e segue como o modelo mais vendido do país",
+ key_points:["小型皮卡級距是巴西獨有的量能池","BYD 目前在巴西沒有對應的皮卡量產車型參戰"],
+ key_points_pt:["A picape compacta é um segmento de volume praticamente exclusivo do Brasil","A BYD não tem hoje nenhuma picape produzida localmente para disputar esse espaço"],
+ insight:"Strada 代表的小型皮卡市場是 BYD 在巴西最明顯的產品空缺。BYD Shark（PHEV 皮卡）若本地化，會是直接切入點。",
+ insight_pt:"O mercado de picape compacta representado pela Strada é a lacuna de produto mais evidente da BYD no Brasil. Nacionalizar a BYD Shark (picape PHEV) seria a porta de entrada direta.",
+ source_name:"Carrolens (Fenabrave)",source_url:"https://carrolens.com.br/rankings/2026"},
+
+{sector:"china",region:"natl",company:"中國品牌總覽",company_pt:"Panorama das marcas chinesas",impact:"Threat",as_of:"2026-09",location:"Brasil",
+ headline:"官方營運的中國品牌已達 15–16 家，Dongfeng、BAIC、Lepas 確認加入",
+ headline_en:"15-16 Chinese brands now trade officially in Brazil; Dongfeng, BAIC and Lepas have confirmed entry",
+ headline_pt:"Já são 15 a 16 marcas chinesas operando oficialmente no Brasil; Dongfeng, BAIC e Lepas confirmaram entrada",
+ key_points:["現有：BYD、Denza、CAOA Chery、Omoda & Jaecoo、Jetour、Geely、Zeekr、GWM、MG、Changan、Avatr、GAC、JAC、Leapmotor、Foton","已確認進入：Dongfeng、BAIC、Lepas，總數上看 18 家","來源之間對「幾家」的計算口徑不一致（15 家 vs 16 家）"],
+ key_points_pt:["Em operação: BYD, Denza, CAOA Chery, Omoda & Jaecoo, Jetour, Geely, Zeekr, GWM, MG, Changan, Avatr, GAC, JAC, Leapmotor e Foton","Entrada confirmada: Dongfeng, BAIC e Lepas, elevando o total para até 18 marcas","As fontes divergem no critério de contagem (15 ou 16 marcas)"],
+ insight:"對 BYD 而言，中國品牌的集體進場是雙面刃：加速市場對中國車的接受度，但也稀釋「中國車＝BYD」的品牌聯想，並把價格戰帶進入門級距。",
+ insight_pt:"Para a BYD, a chegada em bloco das marcas chinesas é faca de dois gumes: acelera a aceitação do carro chinês, mas dilui a associação \"carro chinês = BYD\" e traz a guerra de preço para o segmento de entrada.",
+ source_name:"Carros da China / Brasil em Folhas",source_url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/",confidence:"low"},
+
+{sector:"china",region:"se",company:"GWM",location:"Iracemápolis, SP",impact:"Threat",as_of:"2026-08",
+ headline:"GWM 以 Iracemápolis 廠在地生產，1–8 月 54,340 台排進前十",
+ headline_en:"GWM builds locally at Iracemapolis and enters the top ten with 54,340 units Jan-Aug",
+ headline_pt:"GWM produz em Iracemápolis e entra no top 10 com 54.340 unidades de jan a ago",
+ key_points:["市佔 2.9%，為第 10 名","Haval H6 於 6 月售出 3,943 台"],
+ key_points_pt:["2,9% de participação, na 10ª posição","O Haval H6 vendeu 3.943 unidades em junho"],
+ insight:"GWM 是唯一另一家同時具備「前十名次」與「本地產能」的中國品牌，也是 BYD 在巴西最對稱的競爭者。",
+ insight_pt:"A GWM é a única outra marca chinesa que combina posição no top 10 com capacidade fabril local — é o concorrente mais simétrico da BYD no Brasil.",
+ source_name:"Carrolens / Mundo do Automóvel",source_url:"https://mundodoautomovelparapcd.com.br/os-carros-chineses-que-mais-venderam-em-junho-de-2026/"},
+
+{sector:"china",region:"co",company:"CAOA Chery",location:"Brasil",impact:"Threat",as_of:"2026-06",
+ headline:"CAOA Chery 以 Tiggo 系列穩住銷量，Tiggo 5X 6 月 3,831 台",
+ headline_en:"CAOA Chery holds volume with the Tiggo line; Tiggo 5X did 3,831 units in June",
+ headline_pt:"CAOA Chery sustenta volume com a linha Tiggo; Tiggo 5X fecha junho com 3.831 emplacamentos",
+ key_points:["CAOA 集團體系的在地組裝已運作多年","Tiggo 系列 SUV 長期位居巴西暢銷榜"],
+ key_points_pt:["A montagem local dentro do grupo CAOA já opera há anos","Os SUVs da linha Tiggo estão há muito tempo entre os mais vendidos do país"],
+ insight:"CAOA Chery 是「最不像新進者」的中國品牌——通路與售後已在地化十年以上，這正是 BYD 目前最需要補的一塊。",
+ insight_pt:"A CAOA Chery é a marca chinesa que menos parece recém-chegada: rede e pós-venda nacionalizados há mais de dez anos — exatamente a peça que falta à BYD hoje.",
+ source_name:"Mundo do Automóvel para PCD",source_url:"https://mundodoautomovelparapcd.com.br/os-carros-chineses-que-mais-venderam-em-junho-de-2026/"},
+
+{sector:"china",region:"natl",company:"Omoda & Jaecoo",location:"Brasil",impact:"Threat",as_of:"2026",
+ headline:"Omoda & Jaecoo 從 2025 年的 7,219 台，喊出 2026 年 5 萬台目標",
+ headline_en:"Omoda & Jaecoo goes from 7,219 units in 2025 to a 50,000-unit target for 2026",
+ headline_pt:"Omoda & Jaecoo sai de 7.219 unidades em 2025 para uma meta de 50 mil em 2026",
+ key_points:["已在 24 州開出 70 家以上門市","2026 年推 Omoda 4、Jaecoo 5、Jaecoo 8 三款新車","Jaecoo 7 於 6 月在中國品牌車款中排第 7（2,729 台）","Omoda 5 油電於 4 月登上全混動級距第一","正在評估巴西設廠地點"],
+ key_points_pt:["Mais de 70 lojas abertas em 24 estados","Três lançamentos previstos para 2026: Omoda 4, Jaecoo 5 e Jaecoo 8","O Jaecoo 7 ficou em 7º entre os carros chineses em junho, com 2.729 unidades","O Omoda 5 híbrido liderou o segmento de híbridos completos em abril","A marca estuda a região para instalar fábrica no Brasil"],
+ insight:"從 7,219 到 50,000 是近 7 倍的跳躍，屬品牌宣示而非已實現數字，應視為「企圖」而非「事實」追蹤。但通路鋪設速度（24 州 70 店）是真實訊號。",
+ insight_pt:"Saltar de 7.219 para 50.000 é quase sete vezes — é declaração de meta, não número realizado, e deve ser acompanhado como intenção e não como fato. Já o ritmo de expansão da rede (70 lojas em 24 estados) é sinal concreto.",
+ source_name:"CNN Brasil",source_url:"https://www.cnnbrasil.com.br/auto/omoda-jaecoo-tera-3-carros-lancados-em-2026-e-estuda-regiao-para-fabrica/"},
+
+{sector:"china",region:"ne",company:"Leapmotor",location:"Goiana, PE",impact:"Threat",as_of:"2026",
+ headline:"Leapmotor 借道 Stellantis：2026 年於 Goiana（PE）以 SKD／CKD 生產",
+ headline_en:"Leapmotor rides Stellantis: SKD/CKD production at Goiana, Pernambuco in 2026",
+ headline_pt:"Leapmotor entra pela Stellantis: produção SKD/CKD em Goiana (PE) em 2026",
+ key_points:["Stellantis 持有 Leapmotor 21% 股權並成立 Leapmotor International","直接沿用 Stellantis 在巴西的既有經銷網路"],
+ key_points_pt:["A Stellantis detém 21% da Leapmotor e criou a Leapmotor International","A marca aproveita diretamente a rede de concessionárias que a Stellantis já tem no Brasil"],
+ insight:"這是對 BYD 威脅最不對稱的一家：Leapmotor 不必自建通路與工廠，直接繼承 Stellantis 的規模。BYD 花三年建的東西，它用一紙合約取得。",
+ insight_pt:"É a ameaça mais assimétrica para a BYD: a Leapmotor não precisa construir rede nem fábrica, herda a escala da Stellantis. O que a BYD levou três anos para montar, ela obtém por contrato.",
+ source_name:"Carros da China",source_url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"},
+
+{sector:"china",region:"natl",company:"Geely / Zeekr",location:"Brasil",impact:"Signal",as_of:"2026",
+ headline:"Geely 雙線操作，高階純電品牌 Zeekr 累計突破 1,000 台",
+ headline_en:"Geely runs a two-brand play; premium EV marque Zeekr passes 1,000 units",
+ headline_pt:"Geely opera duas marcas; a premium elétrica Zeekr passa de mil unidades",
+ key_points:["Geely 本品牌與 Zeekr 同步在巴西營運","中國品牌開始向 Audi／BMW／Porsche 的客群上探"],
+ key_points_pt:["A Geely opera no Brasil com a marca própria e com a Zeekr em paralelo","As marcas chinesas começam a mirar o cliente de Audi, BMW e Porsche"],
+ insight:"高階級距的中國品牌化，對 BYD 的 Denza／仰望線有示範也有排擠效應；巴西的豪華電動車池子還很小，先進者的品牌認知優勢會放大。",
+ insight_pt:"A chegada das chinesas ao topo serve de referência e de obstáculo para as linhas Denza e Yangwang da BYD. Como o mercado de elétricos de luxo no Brasil ainda é pequeno, a vantagem de percepção de quem chega primeiro se amplifica.",
+ source_name:"Seu Dinheiro",source_url:"https://www.seudinheiro.com/2026/lifestyle/a-quarta-onda-como-as-marcas-chinesas-premium-estao-redefinindo-o-luxo-automotivo-no-brasil-edvl/"},
+
+{sector:"local",region:"natl",company:"巴西本地化賽局",company_pt:"A corrida pela nacionalização",location:"Brasil",impact:"Signal",as_of:"2026",
+ headline:"關稅倒數推動中國品牌集體本地化：BYD（BA）、GWM（SP）、Leapmotor（PE）、Omoda & Jaecoo（評估中）",
+ headline_en:"The tariff countdown is forcing collective localisation: BYD in Bahia, GWM in Sao Paulo, Leapmotor in Pernambuco, Omoda & Jaecoo still scouting",
+ headline_pt:"A contagem regressiva tarifária empurra as chinesas para a produção local: BYD (BA), GWM (SP), Leapmotor (PE) e Omoda & Jaecoo (em estudo)",
+ key_points:["CKD 14% 優惠僅存至 2026 年底","2027 年 1 月起全部級距一律 35%"],
+ key_points_pt:["O benefício de 14% para CKD vale apenas até o fim de 2026","A partir de janeiro de 2027 todas as categorias vão a 35%"],
+ insight:"2027 年會是分水嶺：屆時沒有本地產能的中國品牌，售價將被迫上抬 15–20%，市場會出現一次洗牌。BYD 的先發優勢有大約 12 個月的兌現窗口。",
+ insight_pt:"2027 será o divisor de águas: quem não tiver produção local será forçado a subir preço entre 15% e 20%, e o mercado passa por uma reacomodação. A vantagem de pioneirismo da BYD tem uma janela de cerca de 12 meses para ser convertida.",
+ source_name:"Primo Auto",source_url:"https://primoauto.com.br/imposto-de-importacao-de-eletricos-chega-a-35-em-julho-de-2026-o-que-muda"}
+];
+
+/* ---------- BYD strategy cards ---------- */
+var BYDDATA = {
+  as_of:"2026-09",
+  strat_note:"以卡馬薩里產能、Dolphin Mini 的零售動能與 2026 年 7 月到頂的關稅牆為軸線，盤點 BYD 在巴西可打與該補的位置。",
+  strat_note_pt:"Um balanço do que a BYD pode atacar e do que precisa cobrir no Brasil, tendo como eixos a capacidade de Camaçari, a tração do Dolphin Mini no varejo e a barreira tarifária que chega ao teto em julho de 2026.",
+  opportunities:[
+    {title:"關稅牆的另一側",title_en:"The right side of the tariff wall",title_pt:"Do lado certo da barreira tarifária",as_of:"2026-07",
+     text:"BEV／PHEV／HEV 進口稅在 2026 年 7 月全數到頂 35%，SKD 同步。卡馬薩里已在本地組裝 Dolphin Mini、Dolphin、Song Pro、King 四款，BYD 是少數能把關稅轉為競爭優勢的中國品牌。",
+     text_pt:"O imposto de importação de BEV, PHEV e HEV chega ao teto de 35% em julho de 2026, e o SKD acompanha. Camaçari já monta localmente Dolphin Mini, Dolphin, Song Pro e King, o que coloca a BYD entre as poucas marcas chinesas capazes de transformar a tarifa em vantagem competitiva.",
+     action:"把本地化率與國產零件比例做成對外可驗證的指標，在 2027 年關稅全面生效前建立「本地品牌」的公共認知。",
+     action_pt:"Transformar o índice de nacionalização e o percentual de peças nacionais em indicadores públicos e verificáveis, construindo a percepção de \"marca brasileira\" antes da tarifa cheia de 2027.",
+     sources:[{label:"Primo Auto",url:"https://primoauto.com.br/imposto-de-importacao-de-eletricos-chega-a-35-em-julho-de-2026-o-que-muda"}]},
+    {title:"零售端已經贏了",title_en:"Retail is already won",title_pt:"O varejo já foi conquistado",as_of:"2026-H1",
+     text:"Dolphin Mini 上半年零售 29,665 台，超越 Hyundai Creta（26,113 台），連四個月零售第一，佔品牌銷量 38.4%。這代表個人買家的品牌障礙已被跨過。",
+     text_pt:"O Dolphin Mini fez 29.665 unidades no varejo no primeiro semestre, superando o Hyundai Creta (26.113), liderou por quatro meses seguidos e responde por 38,4% das vendas da marca. A barreira de marca junto ao comprador pessoa física já caiu.",
+     action:"降低單一車型依賴度：38.4% 集中於一款車，是量能也是風險。Song／King／Seal 需要各自做出級距代表性。",
+     action_pt:"Reduzir a dependência de um único modelo: 38,4% concentrados em um carro é volume, mas também risco. Song, King e Seal precisam construir representatividade própria em seus segmentos.",
+     sources:[{label:"Auto+ TV",url:"https://www.automaistv.com.br/vendas-e-precos/rascunho-byd-dolphin-mini-carro-mais-vendido-varejo-2026/"}]},
+    {title:"出口訂單攤掉產能風險",title_en:"Export orders de-risk the plant",title_pt:"Exportação dilui o risco da fábrica",as_of:"2026-03",
+     text:"卡馬薩里已取得阿根廷 5 萬台、墨西哥 5 萬台，合計 10 萬台出口訂單，等於把巴西內需波動的風險部分外部化。",
+     text_pt:"Camaçari já garantiu 50 mil unidades para a Argentina e 50 mil para o México, totalizando 100 mil em pedidos de exportação — o que externaliza parte do risco de oscilação da demanda interna brasileira.",
+     action:"以區域樞紐定位向巴西政府爭取出口相關的稅務與物流誘因，強化二期擴產（30 萬台）的談判籌碼。",
+     action_pt:"Usar o posicionamento de hub regional para negociar com o governo incentivos fiscais e logísticos ligados à exportação, reforçando o poder de barganha para a segunda etapa (300 mil unidades).",
+     sources:[{label:"Exame",url:"https://exame.com/mundo/fabrica-da-byd-em-camacari-recebe-pedidos-de-100-mil-veiculos-para-exportacao/"}]},
+    {title:"缺口：小型皮卡",title_en:"Gap: the compact pickup",title_pt:"Lacuna: a picape compacta",as_of:"2026",
+     text:"Fiat Strada 以 1–8 月 111,736 台穩居單一車型冠軍。小型皮卡是巴西獨有的量能池，BYD 目前沒有本地量產車型參戰。",
+     text_pt:"A Fiat Strada lidera como modelo mais vendido com 111.736 unidades de janeiro a agosto. A picape compacta é um bolsão de volume praticamente exclusivo do Brasil, e a BYD não tem nenhum modelo produzido localmente para disputá-lo.",
+     action:"評估 PHEV 皮卡本地化的可行性；這是唯一能一次性打開六位數量能的級距。",
+     action_pt:"Avaliar a viabilidade de nacionalizar uma picape PHEV: é o único segmento capaz de abrir volume de seis dígitos de uma só vez.",
+     sources:[{label:"Carrolens (Fenabrave)",url:"https://carrolens.com.br/rankings/2026"}]},
+    {title:"缺口：售後與通路縱深",title_en:"Gap: service network depth",title_pt:"Lacuna: profundidade de rede e pós-venda",as_of:"2026",
+     text:"CAOA Chery 的在地通路與售後已運作十年以上，Omoda & Jaecoo 在 24 州鋪出 70 家以上門市，Leapmotor 則直接繼承 Stellantis 網路。",
+     text_pt:"A rede e o pós-venda da CAOA Chery operam no país há mais de dez anos, a Omoda & Jaecoo já abriu mais de 70 lojas em 24 estados e a Leapmotor herda diretamente a rede da Stellantis.",
+     action:"把通路覆蓋（州別門市數、平均維修等待日）納入固定追蹤指標，與銷量並列。",
+     action_pt:"Incluir cobertura de rede (lojas por estado, tempo médio de espera em oficina) como indicador de acompanhamento fixo, no mesmo nível das vendas.",
+     sources:[{label:"CNN Brasil",url:"https://www.cnnbrasil.com.br/auto/omoda-jaecoo-tera-3-carros-lancados-em-2026-e-estuda-regiao-para-fabrica/"}]},
+    {title:"順風：電動化滲透率",title_en:"Tailwind: electrification uptake",title_pt:"Vento a favor: avanço da eletrificação",as_of:"2026-07",
+     text:"ABVE：7 月電動化市佔 21%，上半年 215,023 台、年增 125%，整體車市僅 +20%。PHEV 佔 35.5% 顯示續航焦慮仍在。",
+     text_pt:"Segundo a ABVE, os eletrificados chegaram a 21% de participação em julho, com 215.023 unidades no primeiro semestre e alta de 125%, contra apenas 20% do mercado total. Os 35,5% de PHEV mostram que a ansiedade de autonomia persiste.",
+     action:"DM-i 產品線對應 PHEV 需求具結構優勢，值得在行銷上與純電線分開定位。",
+     action_pt:"A linha DM-i tem vantagem estrutural para atender à demanda por PHEV e merece posicionamento de marketing separado da linha 100% elétrica.",
+     sources:[{label:"ABVE",url:"https://abve.org.br/eletrificados-conquistam-21-de-participacao-de-mercado-em-julho-e-devem-passar-de-450-mil-este-ano/"}]}
+  ],
+  vol_note:"BYD 在巴西的量能軌跡。年度數字與目標分屬不同性質，圖上分色標示。",
+  vol_note_pt:"Trajetória de volume da BYD no Brasil. Números realizados e metas têm naturezas diferentes e aparecem em cores distintas no gráfico.",
+  volume:[
+    {label:"2025 全年（實績）",label_en:"2025 full year (actual)",label_pt:"2025 ano cheio (realizado)",value:112000,kind:"actual",note:"約 11.2 萬台，品牌排名第 8",note_pt:"cerca de 112 mil unidades, 8º lugar entre as marcas"},
+    {label:"2026 1–8 月（實績）",label_en:"2026 Jan-Aug (actual)",label_pt:"2026 jan-ago (realizado)",value:146930,kind:"actual",note:"市佔 7.9%，品牌排名第 4",note_pt:"7,9% de participação, 4º lugar entre as marcas"},
+    {label:"2026 全年（目標）",label_en:"2026 full year (target)",label_pt:"2026 ano cheio (meta)",value:180000,kind:"target",note:"公司目標，年增上看 50%",note_pt:"meta da empresa, alta de até 50%"}
+  ],
+  vol_sources:[
+    {label:"Portal N10",url:"https://portaln10.com.br/automoveis/byd-meta-vendas-fora-china-2027-brasil-352358/"},
+    {label:"Carrolens (Fenabrave)",url:"https://carrolens.com.br/rankings/2026"}
+  ],
+  kpis:[
+    {k:"1–8 月累計",k_en:"Jan-Aug units",k_pt:"Acumulado jan-ago",v:"146,930",s:"輕型車市佔 7.9%，品牌排名第 4",s_pt:"7,9% do mercado de leves, 4º lugar entre as marcas"},
+    {k:"8 月單月",k_en:"August units",k_pt:"Mês de agosto",v:"24,467",s:"進入巴西以來最高月份，市佔 9.3%",s_pt:"melhor mês da marca no país, com 9,3% de participação"},
+    {k:"2025 全年",k_en:"2025 full year",k_pt:"Ano cheio de 2025",v:"~112,000",s:"當年品牌排名第 8",s_pt:"8º lugar entre as marcas naquele ano"},
+    {k:"2026 目標",k_en:"2026 target",k_pt:"Meta 2026",v:"~180,000",s:"公司目標，非實績",s_pt:"meta da empresa, não é dado realizado"}
+  ],
+  model_note:"BYD 在巴西的車型戰情。各列的統計期間不同，因此以表格而非單一圖表呈現——把不同期間的數字疊進同一張圖會產生誤導。",
+  model_note_pt:"Situação por modelo da BYD no Brasil. Cada linha tem um período de apuração diferente, por isso os dados aparecem em tabela e não em um único gráfico — juntar períodos distintos na mesma figura induziria a erro.",
+  model_caveat:"各列期間不一致：零售（varejo）＝個人買家，與含車隊／租賃的總上牌量口徑不同，不可直接相加或比較。",
+  model_caveat_pt:"Os períodos das linhas não são iguais: varejo = pessoa física, critério diferente do emplacamento total, que inclui frota e locadora. Os números não podem ser somados nem comparados diretamente.",
+  models:[
+    {name:"Dolphin Mini",period:"2026 上半年（零售）",period_pt:"1º semestre de 2026 (varejo)",units:29665,note:"超越 Hyundai Creta（26,113 台）；連四月零售第一；佔 BYD 銷量 38.4%",note_pt:"superou o Hyundai Creta (26.113); líder do varejo por quatro meses; 38,4% das vendas da BYD",src:"Auto+ TV",url:"https://www.automaistv.com.br/vendas-e-precos/rascunho-byd-dolphin-mini-carro-mais-vendido-varejo-2026/"},
+    {name:"Dolphin Mini",period:"2026 第一季（純電）",period_pt:"1º trimestre de 2026 (elétricos)",units:14757,note:"純電級距第一，為第二名的三倍以上",note_pt:"1º entre os elétricos, mais que o triplo do 2º colocado",src:"Canal VE",url:"https://canalve.com.br/carros-eletricos-mais-vendidos-brasil-2026-veja-ranking/"},
+    {name:"Dolphin",period:"2026 第一季（純電）",period_pt:"1º trimestre de 2026 (elétricos)",units:4381,note:"純電級距第二",note_pt:"2º entre os elétricos",src:"Canal VE",url:"https://canalve.com.br/carros-eletricos-mais-vendidos-brasil-2026-veja-ranking/"},
+    {name:"Song 家族",name_pt:"Família Song",period:"2026 年 6 月",period_pt:"Junho de 2026",units:4029,note:"單月量能超越多家百年車廠",note_pt:"volume mensal superior ao de várias montadoras centenárias",src:"Canal VE",url:"https://canalve.com.br/byd-4a-marca-mais-vende-carros-brasil-2026/"},
+    {name:"Song Pro",period:"—",period_pt:"—",units:null,note:"卡馬薩里本地組裝車款",note_pt:"modelo montado localmente em Camaçari",src:"BYD do Brasil",url:"https://www.byd.com/br/byddobrasil"},
+    {name:"King",period:"—",period_pt:"—",units:null,note:"卡馬薩里本地組裝車款",note_pt:"modelo montado localmente em Camaçari",src:"BYD do Brasil",url:"https://www.byd.com/br/byddobrasil"},
+    {name:"Seal / Yuan Pro",period:"—",period_pt:"—",units:null,note:"在售，未取得可驗證的單一期間銷量",note_pt:"à venda; não foi possível verificar volume de um período específico",src:"—",url:""}
+  ],
+  plant_note:"卡馬薩里（Camaçari, BA）——BYD 在巴西的產能核心，也是 2027 年關稅全面生效後的成本護城河。",
+  plant_note_pt:"Camaçari (BA) — o núcleo produtivo da BYD no Brasil e a barreira de custo quando a tarifa cheia entrar em vigor, em 2027.",
+  plant_kpis:[
+    {k:"開線九個月產出",k_en:"Units in 9 months",k_pt:"Produção em 9 meses",v:"100,000",s:"自量產起算",s_pt:"contados desde o início da produção"},
+    {k:"年產能",k_en:"Annual capacity",k_pt:"Capacidade anual",v:"150,000",s:"第二期規劃上看 300,000",s_pt:"segunda etapa projetada para 300.000"},
+    {k:"出口訂單",k_en:"Export orders",k_pt:"Pedidos de exportação",v:"100,000",s:"阿根廷 5 萬 + 墨西哥 5 萬",s_pt:"50 mil Argentina + 50 mil México"},
+    {k:"員工數",k_en:"Headcount",k_pt:"Funcionários",v:"4,100+",s:"再招 1,600 人啟動第三班",s_pt:"mais 1.600 em recrutamento para o terceiro turno"}
+  ],
+  plant_facts:[
+    {k:"本地組裝車款",k_pt:"Modelos montados localmente",v:"Dolphin Mini、Dolphin、Song Pro、King（四款）",v_pt:"Dolphin Mini, Dolphin, Song Pro e King (quatro modelos)"},
+    {k:"產能規劃",k_pt:"Plano de capacidade",v:"一期 15 萬台／年；二期規劃上看 30 萬台／年",v_pt:"1ª etapa: 150 mil unidades/ano; 2ª etapa projetada para 300 mil unidades/ano"},
+    {k:"出口目的地",k_pt:"Destinos de exportação",v:"阿根廷 50,000 台、墨西哥 50,000 台（2026 年 3 月 13 日宣布）",v_pt:"Argentina 50.000 unidades e México 50.000 unidades (anunciado em 13/03/2026)"},
+    {k:"人力",k_pt:"Mão de obra",v:"逾 4,100 人在職，招募 1,600 人以啟動第三班；目標 2026 年內 24 小時運轉",v_pt:"mais de 4.100 funcionários e 1.600 em recrutamento para abrir o terceiro turno; meta de operar 24 horas ainda em 2026"},
+    {k:"戰略意義",k_pt:"Significado estratégico",v:"SKD 自 2026 年 7 月起課 35%、CKD 於 2027 年 1 月起課 35%；本地組裝是唯一的成本出口",v_pt:"SKD passa a 35% em julho de 2026 e CKD em janeiro de 2027; a montagem local é a única saída de custo"}
+  ],
+  plant_sources:[
+    {label:"Exame",url:"https://exame.com/mundo/fabrica-da-byd-em-camacari-recebe-pedidos-de-100-mil-veiculos-para-exportacao/"},
+    {label:"Forbes Brasil",url:"https://forbes.com.br/forbes-life/forbes-motors/2026/07/o-plano-da-byd-para-ter-a-maior-fabrica-de-carros-do-brasil/"},
+    {label:"Canal VE",url:"https://canalve.com.br/byd-ja-distribuiu-363-veiculos-montados-fabrica-camacari/"}
+  ]
+};
+
+/* ---------- Brazil market ---------- */
+var MARKET = {
+  as_of:"2026",
+  total_note:"巴西輕型車市的整體量體與電動化速度，是 BYD 在地擴張的分母。",
+  total_note_pt:"O tamanho do mercado brasileiro de veículos leves e a velocidade da eletrificação formam o denominador da expansão local da BYD.",
+  kpis:[
+    {k:"1–8 月輕型車基數",k_en:"Jan-Aug light-vehicle base",k_pt:"Base de leves jan-ago",v:"~1,860,000",s:"由品牌市佔反推（本站計算），非官方公布值",s_pt:"estimado a partir das participações de mercado (cálculo próprio), não é número oficial"},
+    {k:"1–8 月乘用車",k_en:"Jan-Aug passenger cars",k_pt:"Automóveis jan-ago",v:"1,511,916",s:"Fenabrave「automóveis」口徑，不含輕型商用車",s_pt:"critério \"automóveis\" da Fenabrave, sem comerciais leves"},
+    {k:"8 月上牌年增",k_en:"August YoY",k_pt:"Emplacamentos ago (a/a)",v:"+16.87%",s:"整體上牌量",s_pt:"total de emplacamentos"},
+    {k:"上半年電動化",k_en:"H1 electrified",k_pt:"Eletrificados 1º sem.",v:"215,023",s:"年增 125%，整體車市僅 +20%",s_pt:"alta de 125%, contra apenas 20% do mercado total"},
+    {k:"7 月電動化市佔",k_en:"July electrified share",k_pt:"Part. eletrificados jul",v:"21.0%",s:"6 月為 18.3%",s_pt:"em junho foi de 18,3%"},
+    {k:"2026 電動化預估",k_en:"2026 electrified forecast",k_pt:"Projeção 2026",v:"450,000+",s:"ABVE 預估",s_pt:"projeção da ABVE"}
+  ],
+  caveat:"口徑提醒：Fenabrave 的「automóveis」（1,511,916 台）只含乘用車，而品牌排行榜的數字含輕型商用車。因此前十大品牌加總（1,543,223 台）會大於前者——這不是錯誤，是兩個不同的統計口徑。本站列出的 ~1,860,000 台輕型車基數，是以 BYD 的 146,930 台 ÷ 7.9% 反推而得，屬本站計算值。",
+  caveat_pt:"Atenção ao critério: o número de \"automóveis\" da Fenabrave (1.511.916) cobre apenas veículos de passeio, enquanto o ranking de marcas inclui comerciais leves. Por isso a soma das dez maiores marcas (1.543.223) é maior que aquele total — não é erro, são dois critérios estatísticos distintos. A base de ~1.860.000 leves apresentada aqui foi obtida dividindo as 146.930 unidades da BYD por 7,9%, e é cálculo próprio deste painel.",
+  total_sources:[
+    {label:"Carrolens (Fenabrave)",url:"https://carrolens.com.br/rankings/2026"},
+    {label:"AutoRanking",url:"https://autoranking.com.br/emplacamentos-veiculos-agosto-2026-fenabrave/"},
+    {label:"ABVE",url:"https://abve.org.br/eletrificados-conquistam-21-de-participacao-de-mercado-em-julho-e-devem-passar-de-450-mil-este-ano/"}
+  ],
+  elec_note:"2026 年上半年電動化車款的技術別構成。PHEV 佔逾三分之一，顯示巴西消費者的續航焦慮尚未消除。",
+  elec_note_pt:"Composição dos eletrificados por tecnologia no 1º semestre de 2026. Os PHEV passam de um terço do total, sinal de que a ansiedade de autonomia ainda não foi superada pelo consumidor brasileiro.",
+  elec_metric:"2026 年 1–6 月累計 215,023 台 · 來源 ABVE",
+  elec_metric_pt:"215.023 unidades acumuladas de jan a jun de 2026 · fonte ABVE",
+  elec:[
+    {name:"BEV 純電",name_en:"BEV",name_pt:"BEV 100% elétrico",units:90626,share:42.2},
+    {name:"PHEV 插電混動",name_en:"PHEV",name_pt:"PHEV híbrido plug-in",units:76400,share:35.5},
+    {name:"HEV Flex 乙醇混動",name_en:"HEV Flex",name_pt:"HEV Flex",units:24078,share:11.2},
+    {name:"HEV 一般混動",name_en:"HEV",name_pt:"HEV híbrido",units:23919,share:11.1}
+  ],
+  elec_sources:[
+    {label:"ABVE",url:"https://abve.org.br/eletrificados-conquistam-21-de-participacao-de-mercado-em-julho-e-devem-passar-de-450-mil-este-ano/"},
+    {label:"Primo Auto",url:"https://primoauto.com.br/eletrificados-16-de-cada-100-carros-vendidos-brasil-1-semestre-2026"}
+  ]
+};
+
+/* ---------- Top-10 brands ---------- */
+var BRANDS = {
+  period:"2026 年 1–8 月累計",
+  period_pt:"Acumulado de janeiro a agosto de 2026",
+  data_quality:"medium — 數字彙整自轉述 Fenabrave 的媒體來源，未逐項比對 Fenabrave 官方報表",
+  data_quality_pt:"medium — números compilados de veículos de imprensa que reproduzem a Fenabrave, sem conferência linha a linha no relatório oficial",
+  note:"巴西上牌量前十名品牌，為 BYD 的主要競爭集合。點選任一列可高亮該品牌在市佔圖中的位置。",
+  note_pt:"As dez marcas com mais emplacamentos no Brasil, que formam o conjunto concorrente principal da BYD. Clique em qualquer linha para destacar a marca no gráfico de participação.",
+  sources:[
+    {label:"Carrolens (Fenabrave)",url:"https://carrolens.com.br/rankings/2026"},
+    {label:"Fenabrave 官方",url:"https://www.fenabrave.org.br/portalv2/Conteudo/Emplacamentos"}
+  ],
+  rows:[
+    {rank:1,name:"Fiat",group:"Stellantis",origin:"義大利／巴西在地生產",origin_pt:"Itália / produção local no Brasil",units:368419,share:19.9,
+     facts:["1–8 月 368,419 台，市佔 19.9%","Strada 以 111,736 台為單一車型冠軍","小型皮卡級距的量能來源，BYD 目前無對應車型"],
+     facts_pt:["368.419 unidades de jan a ago, 19,9% de participação","A Strada lidera como modelo mais vendido, com 111.736 unidades","O volume vem da picape compacta, segmento em que a BYD não tem modelo concorrente"]},
+    {rank:2,name:"Volkswagen",group:"VW Group",origin:"德國／巴西在地生產",origin_pt:"Alemanha / produção local no Brasil",units:308277,share:16.7,
+     facts:["1–8 月 308,277 台，市佔 16.7%","在巴西擁有數十年的在地產能與通路縱深"],
+     facts_pt:["308.277 unidades de jan a ago, 16,7% de participação","Décadas de capacidade fabril e profundidade de rede no Brasil"]},
+    {rank:3,name:"Chevrolet",group:"General Motors",origin:"美國／巴西在地生產",origin_pt:"EUA / produção local no Brasil",units:197425,share:10.7,
+     facts:["1–8 月 197,425 台，市佔 10.7%","BYD 8 月單月市佔已達 9.3%，與其年度水準接近"],
+     facts_pt:["197.425 unidades de jan a ago, 10,7% de participação","A BYD já fez 9,3% em agosto, patamar próximo do nível anual da Chevrolet"]},
+    {rank:4,name:"BYD",group:"BYD",origin:"中國／巴西在地生產（Camaçari, BA）",origin_pt:"China / produção local no Brasil (Camaçari, BA)",units:146930,share:7.9,me:true,
+     facts:["1–8 月 146,930 台，市佔 7.9%","2026 年 5 月首度超越 Hyundai","8 月單月 24,467 台，市佔 9.3%，為歷史新高","卡馬薩里年產能 15 萬台，二期上看 30 萬台"],
+     facts_pt:["146.930 unidades de jan a ago, 7,9% de participação","Superou a Hyundai pela primeira vez em maio de 2026","24.467 unidades em agosto e 9,3% de participação, recorde histórico","Camaçari tem capacidade de 150 mil/ano, com 2ª etapa projetada para 300 mil"]},
+    {rank:5,name:"Hyundai",group:"Hyundai",origin:"韓國／巴西在地生產",origin_pt:"Coreia do Sul / produção local no Brasil",units:126917,share:6.9,
+     facts:["1–8 月 126,917 台，市佔 6.9%","Creta 的零售冠軍地位於 2026 上半年被 BYD Dolphin Mini 取代"],
+     facts_pt:["126.917 unidades de jan a ago, 6,9% de participação","O Creta perdeu a liderança do varejo para o BYD Dolphin Mini no 1º semestre de 2026"]},
+    {rank:6,name:"Toyota",group:"Toyota",origin:"日本／巴西在地生產",origin_pt:"Japão / produção local no Brasil",units:108813,share:5.9,
+     facts:["1–8 月 108,813 台，市佔 5.9%","HEV Flex（乙醇混動）路線的主要推動者之一"],
+     facts_pt:["108.813 unidades de jan a ago, 5,9% de participação","Uma das principais impulsionadoras da rota HEV Flex (híbrido a etanol)"]},
+    {rank:7,name:"Renault",group:"Renault",origin:"法國／巴西在地生產",origin_pt:"França / produção local no Brasil",units:84513,share:4.6,
+     facts:["1–8 月 84,513 台，市佔 4.6%"],
+     facts_pt:["84.513 unidades de jan a ago, 4,6% de participação"]},
+    {rank:8,name:"Jeep",group:"Stellantis",origin:"美國／巴西在地生產",origin_pt:"EUA / produção local no Brasil",units:74562,share:4.0,
+     facts:["1–8 月 74,562 台，市佔 4.0%","與 Fiat 同屬 Stellantis 集團"],
+     facts_pt:["74.562 unidades de jan a ago, 4,0% de participação","Do mesmo grupo Stellantis que a Fiat"]},
+    {rank:9,name:"Honda",group:"Honda",origin:"日本／巴西在地生產",origin_pt:"Japão / produção local no Brasil",units:73027,share:4.0,
+     facts:["1–8 月 73,027 台，市佔 4.0%"],
+     facts_pt:["73.027 unidades de jan a ago, 4,0% de participação"]},
+    {rank:10,name:"GWM",group:"Great Wall Motor",origin:"中國／巴西在地生產（Iracemápolis, SP）",origin_pt:"China / produção local no Brasil (Iracemápolis, SP)",units:54340,share:2.9,cn:true,
+     facts:["1–8 月 54,340 台，市佔 2.9%","唯一另一家同時具備前十名次與本地產能的中國品牌","Haval H6 於 6 月售出 3,943 台"],
+     facts_pt:["54.340 unidades de jan a ago, 2,9% de participação","A única outra marca chinesa que combina top 10 com produção local","O Haval H6 vendeu 3.943 unidades em junho"]}
+  ]
+};
+
+/* ---------- Chinese brands ---------- */
+var CHINA = {
+  note:"近三年進軍巴西的中國品牌全景。分為三層：已有本地產能、已正式營運、已確認進入。營運家數在不同來源之間有 15 家與 16 家兩種說法，此處採保守表述。",
+  note_pt:"Panorama das marcas chinesas que entraram no Brasil nos últimos três anos, em três camadas: com produção local, em operação oficial e com entrada confirmada. As fontes divergem entre 15 e 16 marcas em operação, e aqui adotamos a formulação mais conservadora.",
+  data_quality:"medium — 各品牌的首次上市年份多數未能逐一查證，故不列出；僅呈現可驗證的營運狀態與數字。",
+  data_quality_pt:"medium — não foi possível verificar individualmente o ano de estreia da maioria das marcas, por isso esse dado não é exibido; mostramos apenas situação operacional e números verificáveis.",
+  types:[
+    {name:"已有本地產能",name_en:"Local production",name_pt:"Com produção local",
+     brands:[
+      {company:"BYD",location:"Camaçari, BA",impact:"Opportunity",
+       points:["1–8 月 146,930 台，品牌排名第 4","卡馬薩里年產能 15 萬台，二期上看 30 萬台","開線九個月組裝滿 10 萬台","出口訂單 10 萬台（阿根廷／墨西哥各 5 萬）"],
+       points_pt:["146.930 unidades de jan a ago, 4º lugar entre as marcas","Camaçari tem 150 mil unidades/ano, com 2ª etapa projetada para 300 mil","100 mil veículos montados em nove meses de operação","100 mil unidades em pedidos de exportação (50 mil Argentina, 50 mil México)"],
+       implication:"本站主體。關稅全面生效後，本地產能是唯一的成本護城河。",
+       implication_pt:"O objeto central deste painel. Com a tarifa cheia em vigor, a capacidade local é a única barreira de custo que resta.",
+       url:"https://www.byd.com/br/byddobrasil"},
+      {company:"GWM",location:"Iracemápolis, SP",impact:"Threat",
+       points:["1–8 月 54,340 台，品牌排名第 10，市佔 2.9%","Haval H6 於 6 月售出 3,943 台","巴西被列為 GWM 的優先市場"],
+       points_pt:["54.340 unidades de jan a ago, 10º lugar, 2,9% de participação","O Haval H6 vendeu 3.943 unidades em junho","O Brasil é mercado prioritário para a GWM"],
+       implication:"與 BYD 結構最對稱的競爭者：同樣有前十名次與本地產能。",
+       implication_pt:"O concorrente mais simétrico à BYD: também combina posição no top 10 com produção local.",
+       url:"https://mundodoautomovelparapcd.com.br/os-carros-chineses-que-mais-venderam-em-junho-de-2026/"},
+      {company:"CAOA Chery",location:"CAOA 集團體系",location_pt:"Dentro do grupo CAOA",impact:"Threat",
+       points:["Tiggo 系列長期位居巴西暢銷 SUV 榜","Tiggo 5X 於 6 月售出 3,831 台","通路與售後在地化已逾十年"],
+       points_pt:["A linha Tiggo está há anos entre os SUVs mais vendidos do país","O Tiggo 5X fez 3.831 emplacamentos em junho","Rede e pós-venda nacionalizados há mais de dez anos"],
+       implication:"通路縱深是 BYD 的相對弱項，CAOA Chery 是最直接的對照組。",
+       implication_pt:"Profundidade de rede é o ponto fraco relativo da BYD, e a CAOA Chery é o parâmetro de comparação mais direto.",
+       url:"https://mundodoautomovelparapcd.com.br/os-carros-chineses-que-mais-venderam-em-junho-de-2026/"},
+      {company:"Leapmotor",location:"Goiana, PE",impact:"Threat",
+       points:["Stellantis 持股 21%，並成立 Leapmotor International","2026 年於 Goiana（PE）以 SKD／CKD 生產","直接沿用 Stellantis 既有經銷網路"],
+       points_pt:["A Stellantis detém 21% e criou a Leapmotor International","Produção SKD/CKD em Goiana (PE) a partir de 2026","Aproveita diretamente a rede de concessionárias da Stellantis"],
+       implication:"威脅最不對稱的一家——不必自建通路與工廠，直接繼承 Stellantis 規模。",
+       implication_pt:"A ameaça mais assimétrica: não precisa construir rede nem fábrica, herda a escala da Stellantis.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"}
+     ]},
+    {name:"已正式營運",name_en:"Trading nationally",name_pt:"Em operação nacional",
+     brands:[
+      {company:"Omoda & Jaecoo",location:"24 州 70+ 門市",location_pt:"70+ lojas em 24 estados",impact:"Threat",
+       points:["2025 年 7,219 台；2026 年目標 5 萬台（品牌宣示，非實績）","2026 年推 Omoda 4、Jaecoo 5、Jaecoo 8","Jaecoo 7 於 6 月在中國車款中排第 7（2,729 台）","Omoda 5 油電於 4 月登上全混動級距第一","正在評估巴西設廠地點"],
+       points_pt:["7.219 unidades em 2025; meta de 50 mil para 2026 (declaração da marca, não resultado)","Três lançamentos em 2026: Omoda 4, Jaecoo 5 e Jaecoo 8","O Jaecoo 7 ficou em 7º entre os chineses em junho, com 2.729 unidades","O Omoda 5 híbrido liderou o segmento de híbridos completos em abril","A marca estuda a região para instalar fábrica"],
+       implication:"擴張速度最快的一家；通路鋪設（24 州 70 店）是比銷量目標更可信的訊號。",
+       implication_pt:"A de expansão mais rápida; a montagem da rede (70 lojas em 24 estados) é sinal mais confiável do que a meta de vendas.",
+       url:"https://www.cnnbrasil.com.br/auto/omoda-jaecoo-tera-3-carros-lancados-em-2026-e-estuda-regiao-para-fabrica/"},
+      {company:"Geely",location:"Brasil",impact:"Signal",
+       points:["本品牌與高階電動品牌 Zeekr 雙線操作"],
+       points_pt:["Opera em duas frentes: a marca própria e a premium elétrica Zeekr"],
+       implication:"雙品牌上下夾擊的打法，與 BYD／Denza 結構類似。",
+       implication_pt:"Estratégia de duas marcas atacando por cima e por baixo, estrutura semelhante à de BYD e Denza.",
+       url:"https://www.seudinheiro.com/2026/lifestyle/a-quarta-onda-como-as-marcas-chinesas-premium-estao-redefinindo-o-luxo-automotivo-no-brasil-edvl/"},
+      {company:"Zeekr",location:"Brasil",impact:"Signal",
+       points:["累計突破 1,000 台","鎖定 Audi／BMW／Porsche 客群"],
+       points_pt:["Passou de mil unidades acumuladas","Mira o cliente de Audi, BMW e Porsche"],
+       implication:"巴西豪華電動車池子仍小，先進者的品牌認知優勢會被放大。",
+       implication_pt:"O mercado de elétricos de luxo no Brasil ainda é pequeno, o que amplifica a vantagem de percepção de quem chega primeiro.",
+       url:"https://www.seudinheiro.com/2026/lifestyle/a-quarta-onda-como-as-marcas-chinesas-premium-estao-redefinindo-o-luxo-automotivo-no-brasil-edvl/"},
+      {company:"GAC",location:"Brasil",impact:"Signal",points:["列於加速擴張階段的品牌之一"],
+       points_pt:["Listada entre as marcas em fase de expansão acelerada"],
+       implication:"需持續追蹤其通路與本地化動向。",
+       implication_pt:"Requer acompanhamento contínuo de rede e movimentos de nacionalização.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"},
+      {company:"Jetour",location:"Brasil",impact:"Signal",points:["已列入官方營運的中國品牌清單"],
+       points_pt:["Consta na lista de marcas chinesas em operação oficial"],
+       implication:"SUV 導向品牌，與 CAOA Chery 同屬奇瑞體系。",
+       implication_pt:"Marca voltada a SUVs, do mesmo ecossistema Chery que a CAOA Chery.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"},
+      {company:"MG",location:"Brasil",impact:"Signal",points:["已列入官方營運的中國品牌清單（上汽集團）"],
+       points_pt:["Consta na lista de marcas chinesas em operação oficial (grupo SAIC)"],
+       implication:"英系品牌形象＋中國供應鏈，品牌溢價策略與純中國品牌不同。",
+       implication_pt:"Imagem de marca britânica com cadeia de suprimentos chinesa: a estratégia de prêmio de marca difere das chinesas puras.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"},
+      {company:"Changan / Avatr",location:"CAOA 體系",location_pt:"Dentro do grupo CAOA",impact:"Signal",points:["Changan 透過 CAOA 體系營運，並帶入高階品牌 Avatr"],
+       points_pt:["A Changan opera pelo grupo CAOA e traz junto a marca premium Avatr"],
+       implication:"再一組「主流＋高階」雙品牌組合進場。",
+       implication_pt:"Mais uma dupla \"mainstream + premium\" entrando no mercado.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"},
+      {company:"JAC",location:"Brasil",impact:"Signal",points:["在巴西營運時間最長的中國品牌之一"],
+       points_pt:["Uma das marcas chinesas há mais tempo em operação no Brasil"],
+       implication:"早期進入者，品牌勢能已被後進者超越。",
+       implication_pt:"Entrante pioneira, mas já ultrapassada em força de marca pelas que vieram depois.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"},
+      {company:"Foton",location:"Brasil",impact:"Signal",points:["商用車導向"],
+       points_pt:["Foco em veículos comerciais"],
+       implication:"與 BYD 乘用車線重疊度低，但在商用電動化上可能交鋒。",
+       implication_pt:"Pouca sobreposição com a linha de passeio da BYD, mas possível confronto na eletrificação de comerciais.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"},
+      {company:"Denza",location:"Brasil",impact:"Signal",points:["BYD 集團的高階品牌"],
+       points_pt:["Marca premium do grupo BYD"],
+       implication:"同屬 BYD 集團，非競品；與 Zeekr、Avatr 在高階級距正面對上。",
+       implication_pt:"Do mesmo grupo BYD, não é concorrente; enfrenta Zeekr e Avatr diretamente no segmento premium.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"}
+     ]},
+    {name:"已確認進入",name_en:"Confirmed entry",name_pt:"Entrada confirmada",
+     brands:[
+      {company:"Dongfeng",location:"Brasil",impact:"Threat",points:["已確認進入巴西市場"],
+       points_pt:["Entrada no mercado brasileiro confirmada"],
+       implication:"中國品牌總數將由 15–16 家上看 18 家，入門級距的價格壓力會再升一階。",
+       implication_pt:"O total de marcas chinesas passa de 15-16 para até 18, e a pressão de preço no segmento de entrada sobe mais um degrau.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"},
+      {company:"BAIC",location:"Brasil",impact:"Threat",points:["已確認進入巴西市場"],
+       points_pt:["Entrada no mercado brasileiro confirmada"],
+       implication:"同上；新進者多半以價格切入，直接壓縮 Dolphin Mini 所在的入門電動級距。",
+       implication_pt:"Mesmo efeito: entrantes costumam atacar por preço, comprimindo o segmento de elétricos de entrada onde está o Dolphin Mini.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"},
+      {company:"Lepas",location:"Brasil",impact:"Threat",points:["已確認進入巴西市場"],
+       points_pt:["Entrada no mercado brasileiro confirmada"],
+       implication:"需追蹤其定位是否與既有奇瑞系品牌重疊。",
+       implication_pt:"É preciso acompanhar se o posicionamento se sobrepõe ao das marcas Chery já presentes.",
+       url:"https://carrosdachina.com.br/marcas-chinesas-no-brasil-guia-completo/"}
+     ]}
+  ]
+};
+
+/* ---------- Regulation ---------- */
+var REGDATA = {
+  note:"驅動巴西電動車市場結構的法規與稅制。關稅階梯是目前最具決定性的單一變數。",
+  note_pt:"As regras e o regime tributário que moldam a estrutura do mercado de elétricos no Brasil. A escada tarifária é hoje a variável isolada mais determinante.",
+  tariff_note:"Gecex-Camex 於 2023 年 11 月核定的進口關稅階梯，2026 年 7 月全數到頂 35%。整車（BEV／PHEV／HEV）與 SKD 半散裝件同步，CKD 全散裝件延後至 2027 年 1 月。",
+  tariff_note_pt:"Escada de imposto de importação aprovada pelo Gecex-Camex em novembro de 2023, chegando ao teto de 35% em julho de 2026. Veículos montados (BEV, PHEV e HEV) e SKD sobem juntos; o CKD só é alcançado em janeiro de 2027.",
+  tariff_months:["2024-01","2024-07","2025-07","2026-07"],
+  tariff_series:[
+    {name:"BEV 純電",name_en:"BEV",name_pt:"BEV 100% elétrico",values:[10,18,25,35]},
+    {name:"PHEV 插電混動",name_en:"PHEV",name_pt:"PHEV híbrido plug-in",values:[12,20,28,35]},
+    {name:"HEV 一般混動",name_en:"HEV",name_pt:"HEV híbrido",values:[15,25,30,35]}
+  ],
+  tariff_rows:[
+    {item:"BEV 純電（整車）",item_pt:"BEV 100% elétrico (montado)",v2401:"10%",v2407:"18%",v2507:"25%",v2607:"35%",v2607_pt:"35%"},
+    {item:"PHEV 插電混動（整車）",item_pt:"PHEV híbrido plug-in (montado)",v2401:"12%",v2407:"20%",v2507:"28%",v2607:"35%",v2607_pt:"35%"},
+    {item:"HEV 一般混動（整車）",item_pt:"HEV híbrido (montado)",v2401:"15%",v2407:"25%",v2507:"30%",v2607:"35%",v2607_pt:"35%"},
+    {item:"SKD 半散裝件",item_pt:"SKD semidesmontado",v2401:"—",v2407:"—",v2507:"—",v2607:"35%（2026/07 起）",v2607_pt:"35% (a partir de jul/2026)"},
+    {item:"CKD 全散裝件",item_pt:"CKD desmontado",v2401:"—",v2407:"—",v2507:"14%",v2607:"14%（至 2026 年底），2027/01 起 35%",v2607_pt:"14% (até o fim de 2026), 35% a partir de jan/2027"}
+  ],
+  tariff_sources:[
+    {label:"Primo Auto",url:"https://primoauto.com.br/imposto-de-importacao-de-eletricos-chega-a-35-em-julho-de-2026-o-que-muda"},
+    {label:"CNN Brasil",url:"https://www.cnnbrasil.com.br/economia/macroeconomia/governo-aumenta-imposto-de-importacao-para-carros-eletricos-e-hibridos/"},
+    {label:"Gecex / MDIC",url:"https://www.gov.br/mdic/pt-br/assuntos/camex/estrategia-comercial/resolucoes-gecex-sobre-alteracoes-tarifarias"}
+  ],
+  rules:[
+    {name:"Gecex-Camex 進口關稅階梯",name_pt:"Escada tarifária do Gecex-Camex",type:"關稅",type_pt:"Tarifa",status:"執行中，2026/07 到頂",status_pt:"em vigor, teto em jul/2026",date:"2023-11 核定",
+     requires:"BEV／PHEV／HEV 進口稅自 2024 年 1 月起分四階段調升，2026 年 7 月全數達 35%；SKD 同步 35%；CKD 維持 14% 至 2026 年底，2027 年 1 月起 35%。",
+     requires_pt:"O imposto de importação de BEV, PHEV e HEV sobe em quatro etapas desde janeiro de 2024 e chega a 35% para todos em julho de 2026. O SKD acompanha os 35%; o CKD fica em 14% até o fim de 2026 e vai a 35% em janeiro de 2027.",
+     implication:"對 BYD 是護城河、對無本地產能的中國品牌是斷崖。2027 年 1 月會出現一次市場洗牌，BYD 的先發優勢約有 12 個月的兌現窗口。",
+     implication_pt:"Para a BYD é fosso de proteção; para as chinesas sem produção local é precipício. Janeiro de 2027 deve trazer uma reacomodação do mercado, e a vantagem de pioneirismo da BYD tem cerca de 12 meses para ser convertida.",
+     url:"https://primoauto.com.br/imposto-de-importacao-de-eletricos-chega-a-35-em-julho-de-2026-o-que-muda"},
+    {name:"進口成本轉嫁的價格效應",name_pt:"Repasse do custo de importação ao preço",type:"價格",type_pt:"Preço",status:"已顯現",status_pt:"já observado",date:"2026-07",
+     requires:"媒體試算：一輛售價 R$ 200,000 的進口電動車，調升後可能升至 R$ 216,000，終端價漲幅最高約 8%。",
+     requires_pt:"Simulação da imprensa: um elétrico importado de R$ 200.000 pode passar a R$ 216.000 após o reajuste, alta de até 8% no preço final ao consumidor.",
+     implication:"8% 的價格差距，足以讓入門級距的購買決策翻轉。Dolphin Mini 所在的價格帶對此最敏感。",
+     implication_pt:"Uma diferença de 8% é suficiente para virar a decisão de compra no segmento de entrada, e a faixa de preço do Dolphin Mini é a mais sensível a isso.",
+     url:"https://www.eletricos.app/noticias/imposto-35-eletricos-importados-julho-2026-preco-impacto"},
+    {name:"電動化市場滲透（ABVE 追蹤）",name_pt:"Penetração dos eletrificados (acompanhamento ABVE)",type:"市場指標",type_pt:"Indicador de mercado",status:"持續上升",status_pt:"em alta contínua",date:"2026-07",
+     requires:"7 月電動化市佔 21%；上半年 215,023 台、年增 125%；ABVE 預估全年可望超過 45 萬台。",
+     requires_pt:"Participação de 21% em julho; 215.023 unidades no 1º semestre, alta de 125%; a ABVE projeta que o ano supere 450 mil unidades.",
+     implication:"市場結構性順風。但滲透率上升同時也吸引更多中國品牌進場，順風與競爭是同一件事的兩面。",
+     implication_pt:"Vento estrutural a favor. Mas a mesma penetração crescente atrai mais marcas chinesas: o impulso e a concorrência são dois lados do mesmo movimento.",
+     url:"https://abve.org.br/eletrificados-conquistam-21-de-participacao-de-mercado-em-julho-e-devem-passar-de-450-mil-este-ano/"}
+  ]
+};
+
+/* =========================================================================
+   i18n + rendering
+   ========================================================================= */
+var LANGS = ["zh-Hant","zh-Hans","en","pt","ja"];
+var LANG_LABEL = {"zh-Hant":"繁中","zh-Hans":"简中",en:"EN",pt:"PT-BR",ja:"日本語"};
+var lang = "zh-Hant";
+try{ var sl = localStorage.getItem("bydLang"); if(sl && LANGS.indexOf(sl)>=0) lang = sl; }catch(e){}
+
+var UI = {
+  glance:{"zh-Hant":"重點摘要","zh-Hans":"重点摘要",en:"At a glance",pt:"Resumo",ja:"概況"},
+  glanceHint:{"zh-Hant":"— 點數字篩選","zh-Hans":"— 点数字筛选",en:"— tap a number",pt:"— toque num número",ja:"— 数字をタップ"},
+  archive:{"zh-Hant":"歷史報告","zh-Hans":"历史报告",en:"Archive",pt:"Arquivo",ja:"アーカイブ"},
+  allSectors:{"zh-Hant":"全部主題","zh-Hans":"全部主题",en:"All topics",pt:"Todos os temas",ja:"全テーマ"},
+  allRegions:{"zh-Hant":"全部地區","zh-Hans":"全部地区",en:"All regions",pt:"Todas as regiões",ja:"全地域"},
+  angle:{"zh-Hant":"解讀","zh-Hans":"解读",en:"Read-through",pt:"Leitura",ja:"読み解き"},
+  action:{"zh-Hant":"建議行動","zh-Hans":"建议行动",en:"Action",pt:"Ação",ja:"アクション"},
+  source:{"zh-Hant":"來源","zh-Hans":"来源",en:"Source",pt:"Fonte",ja:"出典"},
+  sources_lbl:{"zh-Hant":"來源","zh-Hans":"来源",en:"Sources",pt:"Fontes",ja:"出典"},
+  updated:{"zh-Hant":"更新","zh-Hans":"更新",en:"Updated",pt:"Atualizado",ja:"更新"},
+  lowConf:{"zh-Hant":"低信心","zh-Hans":"低信心",en:"low confidence",pt:"baixa confiança",ja:"信頼度低"},
+  empty:{"zh-Hant":"此條件下沒有項目。","zh-Hans":"此条件下没有项目。",en:"No items under this filter.",pt:"Nenhum item com este filtro.",ja:"該当する項目はありません。"},
+  window:{"zh-Hant":"資料窗口：2026 年 1–8 月累計","zh-Hans":"数据窗口：2026 年 1–8 月累计",en:"Window: Jan-Aug 2026 cumulative",pt:"Janela: acumulado jan-ago 2026",ja:"期間：2026年1–8月累計"},
+  /* tabs */
+  tab_news:{"zh-Hant":"市場新聞","zh-Hans":"市场新闻",en:"Market News",pt:"Notícias",ja:"市場ニュース"},
+  tab_byd:{"zh-Hant":"BYD 戰情","zh-Hans":"BYD 战情",en:"BYD Strategy",pt:"Estratégia BYD",ja:"BYD 戦略"},
+  tab_market:{"zh-Hant":"巴西車市","zh-Hans":"巴西车市",en:"Brazil Market",pt:"Mercado Brasil",ja:"ブラジル市場"},
+  tab_top10:{"zh-Hant":"主要競品 Top 10","zh-Hans":"主要竞品 Top 10",en:"Top-10 Rivals",pt:"Top 10 rivais",ja:"主要競合 Top 10"},
+  tab_china:{"zh-Hant":"中國品牌","zh-Hans":"中国品牌",en:"Chinese Brands",pt:"Marcas chinesas",ja:"中国ブランド"},
+  tab_reg:{"zh-Hant":"法規與關稅","zh-Hans":"法规与关税",en:"Rules & Tariffs",pt:"Regras & tarifas",ja:"規制・関税"},
+  /* byd subtabs */
+  sub_bstrat:{"zh-Hant":"戰略機會","zh-Hans":"战略机会",en:"Strategy",pt:"Estratégia",ja:"戦略"},
+  sub_bvol:{"zh-Hant":"銷售量能","zh-Hans":"销售量能",en:"Volume",pt:"Volume",ja:"販売量"},
+  sub_bmodel:{"zh-Hant":"車型戰情","zh-Hans":"车型战情",en:"Models",pt:"Modelos",ja:"モデル"},
+  sub_bplant:{"zh-Hant":"卡馬薩里工廠","zh-Hans":"卡马萨里工厂",en:"Camaçari Plant",pt:"Fábrica Camaçari",ja:"カマサリ工場"},
+  /* market subtabs */
+  sub_mtotal:{"zh-Hant":"市場總量","zh-Hans":"市场总量",en:"Market Size",pt:"Tamanho do mercado",ja:"市場規模"},
+  sub_melec:{"zh-Hant":"電動化構成","zh-Hans":"电动化构成",en:"Electrification Mix",pt:"Mix eletrificado",ja:"電動化構成"},
+  /* reg subtabs */
+  sub_rtariff:{"zh-Hant":"關稅階梯","zh-Hans":"关税阶梯",en:"Tariff Ramp",pt:"Escada tarifária",ja:"関税スケジュール"},
+  sub_rrules:{"zh-Hant":"法規條目","zh-Hans":"法规条目",en:"Rules",pt:"Regras",ja:"規制一覧"},
+  /* tables */
+  tbl_rank:{"zh-Hant":"名次","zh-Hans":"名次",en:"Rank",pt:"Pos.",ja:"順位"},
+  tbl_brand:{"zh-Hant":"品牌","zh-Hans":"品牌",en:"Brand",pt:"Marca",ja:"ブランド"},
+  tbl_units:{"zh-Hant":"上牌量","zh-Hans":"上牌量",en:"Units",pt:"Emplacamentos",ja:"登録台数"},
+  tbl_share:{"zh-Hant":"市佔","zh-Hans":"市占",en:"Share",pt:"Participação",ja:"シェア"},
+  tbl_model:{"zh-Hant":"車型","zh-Hans":"车型",en:"Model",pt:"Modelo",ja:"モデル"},
+  tbl_period:{"zh-Hant":"統計期間","zh-Hans":"统计期间",en:"Period",pt:"Período",ja:"期間"},
+  tbl_note:{"zh-Hant":"備註","zh-Hans":"备注",en:"Note",pt:"Nota",ja:"備考"},
+  tbl_item:{"zh-Hant":"項目","zh-Hans":"项目",en:"Item",pt:"Item",ja:"項目"},
+  tbl_value:{"zh-Hant":"內容","zh-Hans":"内容",en:"Value",pt:"Valor",ja:"内容"},
+  tbl_tech:{"zh-Hant":"技術別","zh-Hans":"技术别",en:"Technology",pt:"Tecnologia",ja:"技術区分"},
+  tbl_category:{"zh-Hant":"類別","zh-Hans":"类别",en:"Category",pt:"Categoria",ja:"区分"},
+  tbl_total:{"zh-Hant":"合計","zh-Hans":"合计",en:"Total",pt:"Total",ja:"合計"},
+  dq_lbl:{"zh-Hant":"資料品質","zh-Hans":"数据质量",en:"Data quality",pt:"Qualidade do dado",ja:"データ品質"},
+  caveat_lbl:{"zh-Hant":"口徑提醒","zh-Hans":"口径提醒",en:"Definition caveat",pt:"Atenção ao critério",ja:"定義に関する注意"},
+  t_threat:{"zh-Hant":"威脅","zh-Hans":"威胁",en:"Threat",pt:"Ameaça",ja:"脅威"},
+  t_opp:{"zh-Hant":"機會","zh-Hans":"机会",en:"Opportunity",pt:"Oportunidade",ja:"機会"},
+  t_signal:{"zh-Hant":"訊號","zh-Hans":"信号",en:"Signal",pt:"Sinal",ja:"シグナル"},
+  actual:{"zh-Hant":"實績","zh-Hans":"实绩",en:"Actual",pt:"Realizado",ja:"実績"},
+  target:{"zh-Hant":"目標","zh-Hans":"目标",en:"Target",pt:"Meta",ja:"目標"},
+  foot_note:{"zh-Hant":"本站為市場情報彙整，非投資建議。所有數字均附來源連結；標示為「本站計算」或「目標」者非官方實績。內容提供繁體中文與巴西葡文完整版本，介面支援五語系。","zh-Hans":"本站为市场情报汇整，非投资建议。所有数字均附来源链接；标示为「本站计算」或「目标」者非官方实绩。内容提供繁体中文与巴西葡文完整版本，界面支持五语系。",en:"Market intelligence only, not investment advice. Every figure carries a source link; items marked as our own calculation or as a target are not official actuals. Body content is available in full in Traditional Chinese and Brazilian Portuguese; the interface supports five languages.",pt:"Inteligência de mercado, não é recomendação de investimento. Todos os números trazem link de fonte; itens marcados como cálculo próprio ou meta não são dados oficiais realizados. O conteúdo está disponível na íntegra em chinês tradicional e português do Brasil; a interface tem cinco idiomas.",ja:"本サイトは市場情報のまとめであり、投資助言ではありません。すべての数値に出典リンクを付しています。"}
+};
+function t(k){ return (UI[k] && UI[k][lang]) || (UI[k] && UI[k]["zh-Hant"]) || ""; }
+function fld(o, base){ if(!o) return ""; var k = base + "_" + (lang==="zh-Hans"?"zh-Hans":lang==="en"?"en":lang==="pt"?"pt":lang==="ja"?"ja":"zh-Hant");
+  if(o[k]!=null) return o[k];
+  if(lang==="zh-Hans" && o[base+"_zh-Hans"]==null) return o[base];
+  return o[base]!=null ? o[base] : ""; }
+function esc(x){ var d=document.createElement("div"); d.textContent = x==null?"":x; return d.innerHTML; }
+function fmtNum(n){ if(n==null||isNaN(n)) return "—"; return Math.round(n).toLocaleString("en-US"); }
+function srcLinks(arr){ return (arr||[]).map(function(s){ return "<a href='"+esc(s.url)+"' target='_blank' rel='noopener noreferrer'>"+esc(s.label)+"</a>"; }).join(" · "); }
+function dqClass(s){ s=(s||"").toLowerCase(); if(s.indexOf("high")===0)return"high"; if(s.indexOf("medium")===0)return"medium"; if(s.indexOf("low")===0)return"low"; return""; }
+
+/* ---- charts / theme ---- */
+var CHART_PALETTE_LIGHT = ["#0B6E3D","#12A06B","#B7791F","#2E7D5B","#5A6E63","#7FB89A","#1F6F8B","#A6593C"];
+var CHART_PALETTE_DARK  = ["#34D399","#38BDF8","#E0A93B","#5DCAA5","#8FC4AE","#7DE8DC","#60A5FA","#F0997B"];
+var CHART_PALETTE = CHART_PALETTE_LIGHT;
+var CHARTS = {};
+function mkChart(id, cfg){
+  if (CHARTS[id]) { CHARTS[id].destroy(); delete CHARTS[id]; }
+  var el = document.getElementById(id); if(!el || typeof Chart === "undefined") return null;
+  CHARTS[id] = new Chart(el.getContext("2d"), cfg); return CHARTS[id];
+}
+var themeDark = document.documentElement.getAttribute("data-theme") === "dark";
+function applyChartDefaults(dark){
+  if(typeof Chart === "undefined") return;
+  Chart.defaults.color = dark ? "#8FC4AE" : "#5A6E63";
+  Chart.defaults.borderColor = dark ? "rgba(95,132,116,.18)" : "#E3EDE7";
+  Chart.defaults.font.family = "'IBM Plex Sans','Microsoft JhengHei','PingFang TC',system-ui,sans-serif";
+}
+function applyTheme(dark){
+  themeDark = dark;
+  document.documentElement.setAttribute("data-theme", dark?"dark":"light");
+  CHART_PALETTE = dark ? CHART_PALETTE_DARK : CHART_PALETTE_LIGHT;
+  applyChartDefaults(dark);
+  var ic=document.getElementById("themeIcon"); if(ic) ic.textContent = dark?"☀":"☾";
+}
+function toggleTheme(){
+  applyTheme(!themeDark);
+  try{ localStorage.setItem("bydTheme", themeDark?"dark":"light"); }catch(e){}
+  renderCurrentTab();
+}
+
+/* ---- news filters ---- */
+var sectorKeys = Object.keys(SECTORS), regionKeys = Object.keys(REGIONS);
+var fSector="all", fRegion="all";
+function sectorLabel(s){ return fld(SECTORS[s]||{}, "label") || s; }
+function regionLabel(r){ return fld(REGIONS[r]||{}, "label") || r; }
+function regionShort(r){ return fld(REGIONS[r]||{}, "short") || regionLabel(r); }
+function count(s,r){ return NEWS.filter(function(it){ return (s==="all"||it.sector===s)&&(r==="all"||it.region===r); }).length; }
+
+function buildLangToggle(){
+  document.getElementById("langToggle").innerHTML = LANGS.map(function(l){
+    return "<button class='"+(lang===l?"on":"")+"' onclick='setLang(\""+l+"\")'>"+esc(LANG_LABEL[l])+"</button>";
+  }).join("");
+}
+function buildHeat(){
+  var max=1;
+  sectorKeys.forEach(function(s){ regionKeys.forEach(function(r){ max=Math.max(max,count(s,r)); }); });
+  var h="<tr><th class='rowh'></th>";
+  regionKeys.forEach(function(r){ h+="<th>"+esc(regionShort(r))+"</th>"; });
+  h+="</tr>";
+  sectorKeys.forEach(function(s){
+    h+="<tr><td class='rowh'>"+esc(sectorLabel(s))+"</td>";
+    regionKeys.forEach(function(r){
+      var n=count(s,r), a=n/max;
+      var bg = n===0 ? "var(--cell-empty)" : "rgba(18,160,107,"+(0.12+0.55*a).toFixed(2)+")";
+      var fg = a>0.6 ? "#fff" : "var(--ink)";
+      h+="<td class='cell'><button "+(n===0?"disabled":"")+" style='background:"+bg+";color:"+fg+"' onclick='setFilter(\""+s+"\",\""+r+"\")'>"+n+"</button></td>";
+    });
+    h+="</tr>";
+  });
+  document.getElementById("heat").innerHTML=h;
+}
+function buildFilters(){
+  var tb="<button class='"+(fSector==="all"?"on":"")+"' onclick='setSector(\"all\")'>"+esc(t("allSectors"))+" <span class='n'>"+count("all",fRegion)+"</span></button>";
+  sectorKeys.forEach(function(s){
+    tb+="<button class='"+(fSector===s?"on":"")+"' onclick='setSector(\""+s+"\")'>"+esc(sectorLabel(s))+" <span class='n'>"+count(s,fRegion)+"</span></button>";
+  });
+  document.getElementById("tabs").innerHTML=tb;
+  var p="<button class='"+(fRegion==="all"?"on":"")+"' onclick='setRegion(\"all\")'>"+esc(t("allRegions"))+" ("+count(fSector,"all")+")</button>";
+  regionKeys.forEach(function(r){
+    p+="<button class='"+(fRegion===r?"on":"")+"' onclick='setRegion(\""+r+"\")'>"+esc(regionLabel(r))+" ("+count(fSector,r)+")</button>";
+  });
+  document.getElementById("pills").innerHTML=p;
+}
+var IMPACT_CLS={Threat:"threat",Opportunity:"opp",Signal:""};
+function impactTxt(i){ return i==="Threat"?t("t_threat"):i==="Opportunity"?t("t_opp"):t("t_signal"); }
+function buildCards(){
+  var items=NEWS.filter(function(it){ return (fSector==="all"||it.sector===fSector)&&(fRegion==="all"||it.region===fRegion); });
+  document.getElementById("cards").innerHTML = items.map(function(it){
+    var pts=(fld(it,"key_points")||[]).map(function(k){ return "<li>"+esc(k)+"</li>"; }).join("");
+    var tag = it.confidence==="low"
+      ? "<span class='tag low'>"+esc(t("lowConf"))+"</span>"
+      : "<span class='tag'>"+esc(impactTxt(it.impact))+"</span>";
+    var ang=fld(it,"insight");
+    var src = it.source_url ? "<div class='src'>"+esc(t("source"))+": <a href='"+esc(it.source_url)+"' target='_blank' rel='noopener noreferrer'>"+esc(it.source_name||it.source_url)+"</a>"+(it.as_of?" · "+esc(it.as_of):"")+"</div>" : "";
+    return "<article class='card "+(IMPACT_CLS[it.impact]||"")+"'>"+
+      "<div class='top'><span class='co'>"+esc(fld(it,"company"))+"</span><span class='loc'>"+esc(fld(it,"location")||regionLabel(it.region))+"</span>"+tag+"</div>"+
+      "<h3>"+esc(fld(it,"headline"))+"</h3>"+
+      (pts?"<ul>"+pts+"</ul>":"")+
+      (ang?"<div class='angle'><b>◆ "+esc(t("angle"))+"</b>"+esc(ang)+"</div>":"")+
+      src+"</article>";
+  }).join("");
+  document.getElementById("empty").style.display = items.length?"none":"block";
+}
+function splitSummary(text){
+  if(!text) return [];
+  var out=[],buf="";
+  for(var i=0;i<text.length;i++){
+    var ch=text[i], next=text[i+1]||"";
+    buf+=ch;
+    if(ch==="。"){ out.push(buf); buf=""; }
+    else if((ch==="."||ch==="!"||ch==="?")&&(next===""||/\s/.test(next))){ out.push(buf); buf=""; }
+  }
+  if(buf) out.push(buf);
+  return out.map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+}
+function renderSummary(){
+  var el=document.getElementById("summary"); if(!el) return;
+  while(el.firstChild) el.removeChild(el.firstChild);
+  var text=fld(META,"summary");
+  var pts=splitSummary(text);
+  if(pts.length<=1){ el.textContent=text||""; return; }
+  var ul=document.createElement("ul"); ul.className="summary-list";
+  pts.forEach(function(p){ var li=document.createElement("li"); li.textContent=p; ul.appendChild(li); });
+  el.appendChild(ul);
+}
+function applyStaticText(){
+  document.documentElement.lang = lang==="pt" ? "pt-BR" : lang;
+  renderSummary();
+  document.getElementById("glanceTitle").textContent=t("glance");
+  document.getElementById("glanceHint").textContent=" "+t("glanceHint");
+  document.getElementById("archiveLabel").textContent=t("archive");
+  document.getElementById("empty").textContent=t("empty");
+  document.getElementById("windowLbl").textContent=t("window");
+  document.getElementById("foot").innerHTML = "BYD BRASIL RADAR · "+esc(META.report_date)+" · "+esc(fld(META,"base_period"))+"<br>"+esc(t("foot_note"));
+}
+function setSector(s){ fSector=s; buildHeat(); buildFilters(); buildCards(); }
+function setRegion(r){ fRegion=r; buildHeat(); buildFilters(); buildCards(); }
+function setFilter(s,r){ fSector=s; fRegion=r; buildHeat(); buildFilters(); buildCards(); document.getElementById("filters").scrollIntoView({behavior:"smooth"}); }
+function setLang(l){ if(LANGS.indexOf(l)<0) return; lang=l; try{ localStorage.setItem("bydLang",l); }catch(e){} refresh(); }
+
+/* ================= Tabs ================= */
+var TAB_KEYS=["news","byd","market","top10","china","reg"];
+var TAB_UI={news:"tab_news",byd:"tab_byd",market:"tab_market",top10:"tab_top10",china:"tab_china",reg:"tab_reg"};
+var curTab="news", curBydSub="bstrat", curMktSub="mtotal", curRegSub="rtariff", topSel=3, curChinaType=0;
+try{ var st=localStorage.getItem("bydTab"); if(st && TAB_KEYS.indexOf(st)>=0) curTab=st; }catch(e){}
+
+function buildTabNav(){
+  document.getElementById("tabnav").innerHTML = TAB_KEYS.map(function(k){
+    return "<button class='"+(curTab===k?"on":"")+"' onclick='setTab(\""+k+"\")'>"+esc(t(TAB_UI[k]))+"</button>";
+  }).join("");
+}
+function setTab(k){
+  if(TAB_KEYS.indexOf(k)<0) return;
+  curTab=k;
+  try{ localStorage.setItem("bydTab",k); }catch(e){}
+  TAB_KEYS.forEach(function(x){ var el=document.getElementById("tab-"+x); if(el) el.classList.toggle("on", x===k); });
+  buildTabNav(); renderCurrentTab();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderCurrentTab(){
+  if(curTab==="byd") renderByd();
+  else if(curTab==="market") renderMarket();
+  else if(curTab==="top10") renderTop10();
+  else if(curTab==="china") renderChina();
+  else if(curTab==="reg") renderReg();
+}
+function buildSubnav(containerId, subs, cur, setter){
+  document.getElementById(containerId).innerHTML = subs.map(function(s){
+    return "<button class='"+(cur===s.k?"on":"")+"' onclick='"+setter+"(\""+s.k+"\")'>"+esc(t(s.ui))+"</button>";
+  }).join("");
+}
+function kpiHtml(list){
+  return list.map(function(x){
+    return "<div class='kpi'><span class='k'>"+esc(fld(x,"k"))+"</span><span class='v'>"+esc(x.v)+"</span><span class='s'>"+esc(fld(x,"s"))+"</span></div>";
+  }).join("");
+}
+
+/* ---- BYD tab ---- */
+function setBydSub(s){ curBydSub=s; renderByd(); }
+function renderByd(){
+  buildSubnav("bydSubnav",[{k:"bstrat",ui:"sub_bstrat"},{k:"bvol",ui:"sub_bvol"},{k:"bmodel",ui:"sub_bmodel"},{k:"bplant",ui:"sub_bplant"}],curBydSub,"setBydSub");
+  ["bstrat","bvol","bmodel","bplant"].forEach(function(s){ var el=document.getElementById("sub-"+s); if(el) el.classList.toggle("on", s===curBydSub); });
+  document.getElementById("bydTitle").textContent=t("tab_byd");
+  var d=BYDDATA;
+  if(curBydSub==="bstrat"){
+    document.getElementById("bStratNote").textContent=fld(d,"strat_note");
+    document.getElementById("bOppGrid").innerHTML = d.opportunities.map(function(o){
+      return "<div class='opp'><div class='oh'><h4>"+esc(fld(o,"title"))+"</h4><span class='odate'>"+esc(o.as_of||"")+"</span></div>"+
+        "<p>"+esc(fld(o,"text"))+"</p>"+
+        (o.action?"<div class='impl'><b>▶ "+esc(t("action"))+"</b>"+esc(fld(o,"action"))+"</div>":"")+
+        (o.sources?"<div class='srclist'>"+esc(t("source"))+": "+srcLinks(o.sources)+"</div>":"")+"</div>";
+    }).join("");
+  } else if(curBydSub==="bvol"){
+    document.getElementById("bVolNote").textContent=fld(d,"vol_note");
+    document.getElementById("bKpi").innerHTML=kpiHtml(d.kpis);
+    mkChart("bVolChart",{
+      type:"bar",
+      data:{labels:d.volume.map(function(v){return fld(v,"label");}),
+        datasets:[{label:"台",data:d.volume.map(function(v){return v.value;}),
+          backgroundColor:d.volume.map(function(v){return v.kind==="target"?CHART_PALETTE[2]:CHART_PALETTE[0];})}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
+          var v=d.volume[c.dataIndex];
+          return fmtNum(c.parsed.y)+"  ("+(v.kind==="target"?t("target"):t("actual"))+") — "+fld(v,"note");
+        }}}},
+        scales:{y:{ticks:{callback:function(v){return fmtNum(v);}}}}}
+    });
+    document.getElementById("bVolSrc").innerHTML=t("sources_lbl")+": "+srcLinks(d.vol_sources);
+  } else if(curBydSub==="bmodel"){
+    document.getElementById("bModelNote").textContent=fld(d,"model_note");
+    document.getElementById("bModelCaveat").innerHTML="<b>"+esc(t("caveat_lbl"))+"</b>"+esc(fld(d,"model_caveat"));
+    var h="<tr><th>"+esc(t("tbl_model"))+"</th><th>"+esc(t("tbl_period"))+"</th><th style='text-align:right'>"+esc(t("tbl_units"))+"</th><th>"+esc(t("tbl_note"))+"</th><th>"+esc(t("source"))+"</th></tr>";
+    d.models.forEach(function(m){
+      h+="<tr><td><b>"+esc(fld(m,"name"))+"</b></td><td>"+esc(fld(m,"period"))+"</td><td class='num'>"+(m.units==null?"—":fmtNum(m.units))+"</td><td>"+esc(fld(m,"note"))+"</td>"+
+        "<td>"+(m.url?"<a href='"+esc(m.url)+"' target='_blank' rel='noopener noreferrer'>"+esc(m.src)+"</a>":esc(m.src))+"</td></tr>";
+    });
+    document.getElementById("bModelTable").innerHTML=h;
+  } else if(curBydSub==="bplant"){
+    document.getElementById("bPlantNote").textContent=fld(d,"plant_note");
+    document.getElementById("bPlantKpi").innerHTML=kpiHtml(d.plant_kpis);
+    var ph="<tr><th>"+esc(t("tbl_item"))+"</th><th>"+esc(t("tbl_value"))+"</th></tr>";
+    d.plant_facts.forEach(function(f){ ph+="<tr><td style='white-space:nowrap'><b>"+esc(fld(f,"k"))+"</b></td><td>"+esc(fld(f,"v"))+"</td></tr>"; });
+    document.getElementById("bPlantTable").innerHTML=ph;
+    document.getElementById("bPlantSrc").innerHTML=t("sources_lbl")+": "+srcLinks(d.plant_sources);
+  }
+}
+
+/* ---- Market tab ---- */
+function setMktSub(s){ curMktSub=s; renderMarket(); }
+function renderMarket(){
+  buildSubnav("mktSubnav",[{k:"mtotal",ui:"sub_mtotal"},{k:"melec",ui:"sub_melec"}],curMktSub,"setMktSub");
+  ["mtotal","melec"].forEach(function(s){ var el=document.getElementById("sub-"+s); if(el) el.classList.toggle("on", s===curMktSub); });
+  document.getElementById("marketTitle").textContent=t("tab_market");
+  var m=MARKET;
+  if(curMktSub==="mtotal"){
+    document.getElementById("mTotalNote").textContent=fld(m,"total_note");
+    document.getElementById("mKpi").innerHTML=kpiHtml(m.kpis);
+    document.getElementById("mCaveat").innerHTML="<b>"+esc(t("caveat_lbl"))+"</b>"+esc(fld(m,"caveat"));
+    document.getElementById("mTotalSrc").innerHTML=t("sources_lbl")+": "+srcLinks(m.total_sources);
+  } else {
+    document.getElementById("mElecNote").textContent=fld(m,"elec_note");
+    document.getElementById("mElecMeta").textContent=fld(m,"elec_metric");
+    mkChart("mElecChart",{
+      type:"doughnut",
+      data:{labels:m.elec.map(function(e){return fld(e,"name");}),
+        datasets:[{data:m.elec.map(function(e){return e.units;}),
+          backgroundColor:m.elec.map(function(e,i){return CHART_PALETTE[i%CHART_PALETTE.length];})}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:"right"},tooltip:{callbacks:{label:function(c){
+          return c.label+": "+fmtNum(c.parsed)+" ("+m.elec[c.dataIndex].share+"%)";
+        }}}}}
+    });
+    var eh="<tr><th>"+esc(t("tbl_tech"))+"</th><th style='text-align:right'>"+esc(t("tbl_units"))+"</th><th style='text-align:right'>"+esc(t("tbl_share"))+"</th></tr>";
+    m.elec.forEach(function(e){ eh+="<tr><td>"+esc(fld(e,"name"))+"</td><td class='num'>"+fmtNum(e.units)+"</td><td class='num'>"+e.share+"%</td></tr>"; });
+    eh+="<tr><td><b>"+esc(t("tbl_total"))+"</b></td><td class='num'><b>215,023</b></td><td class='num'><b>100%</b></td></tr>";
+    document.getElementById("mElecTable").innerHTML=eh;
+    document.getElementById("mElecSrc").innerHTML=t("sources_lbl")+": "+srcLinks(m.elec_sources);
+  }
+}
+
+/* ---- Top-10 tab ---- */
+function selectBrand(i){ topSel=i; renderTop10(); }
+function renderTop10(){
+  var b=BRANDS;
+  document.getElementById("topTitle").textContent=t("tab_top10");
+  document.getElementById("topNote").textContent=fld(b,"note");
+  document.getElementById("topMeta").textContent=fld(b,"period")+" · "+t("dq_lbl")+": "+fld(b,"data_quality");
+  var h="<tr><th>"+esc(t("tbl_rank"))+"</th><th>"+esc(t("tbl_brand"))+"</th><th style='text-align:right'>"+esc(t("tbl_units"))+"</th><th style='text-align:right'>"+esc(t("tbl_share"))+"</th></tr>";
+  b.rows.forEach(function(r,i){
+    h+="<tr class='pick"+(topSel===i?" sel":"")+(r.me?" me":"")+"' onclick='selectBrand("+i+")'>"+
+      "<td class='num'>"+r.rank+"</td><td>"+esc(r.name)+(r.me?" ◆":(r.cn?" ·CN":""))+"</td>"+
+      "<td class='num'>"+fmtNum(r.units)+"</td><td class='num'>"+r.share.toFixed(1)+"%</td></tr>";
+  });
+  document.getElementById("topTable").innerHTML=h;
+  if(topSel==null||topSel>=b.rows.length) topSel=0;
+  var sel=b.rows[topSel];
+  document.getElementById("topDetailName").textContent=sel.name;
+  document.getElementById("topDetailMeta").textContent=sel.group+" · "+fld(sel,"origin");
+  document.getElementById("topDq").innerHTML="<span class='dq "+dqClass(b.data_quality)+"'>"+esc(t("dq_lbl"))+": "+esc(fld(b,"data_quality"))+"</span>";
+  mkChart("topChart",{
+    type:"bar",
+    data:{labels:b.rows.map(function(r){return r.name;}),
+      datasets:[{label:t("tbl_share"),data:b.rows.map(function(r){return r.share;}),
+        backgroundColor:b.rows.map(function(r,i){ return i===topSel ? CHART_PALETTE[0] : (themeDark?"rgba(95,132,116,.38)":"rgba(90,110,99,.28)"); })}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
+        var r=b.rows[c.dataIndex]; return r.share.toFixed(1)+"% · "+fmtNum(r.units);
+      }}}},
+      scales:{x:{ticks:{callback:function(v){return v+"%";}}}},
+      onClick:function(e,els){ if(els.length) selectBrand(els[0].index); }}
+  });
+  document.getElementById("topFacts").innerHTML =
+    "<ul style='margin:0 0 10px 18px'>"+(fld(sel,"facts")||[]).map(function(f){return "<li style='font-size:13px;line-height:1.6;margin-bottom:3px'>"+esc(f)+"</li>";}).join("")+"</ul>";
+  document.getElementById("topSrc").innerHTML=t("sources_lbl")+": "+srcLinks(b.sources);
+}
+
+/* ---- Chinese brands tab ---- */
+function setChinaType(i){ curChinaType=i; renderChina(); }
+function renderChina(){
+  var c=CHINA;
+  document.getElementById("chinaTitle").textContent=t("tab_china");
+  document.getElementById("chinaNote").textContent=fld(c,"note")+"  "+t("dq_lbl")+": "+fld(c,"data_quality");
+  if(curChinaType>=c.types.length) curChinaType=0;
+  document.getElementById("chinaTypes").innerHTML=c.types.map(function(ty,i){
+    return "<button class='"+(i===curChinaType?"on":"")+"' onclick='setChinaType("+i+")'>"+esc(fld(ty,"name"))+" ("+ty.brands.length+")</button>";
+  }).join("");
+  var bcls={Threat:"threat",Opportunity:"opp",Signal:"signal"};
+  var ty=c.types[curChinaType];
+  var h="<div class='reg-grid'>"+ty.brands.map(function(b){
+    var pts=(fld(b,"points")||[]).map(function(p){return "<li>"+esc(p)+"</li>";}).join("");
+    return "<div class='reg'><div class='rt'><span class='rname'>"+esc(b.company)+"</span>"+
+      "<span class='badge "+(bcls[b.impact]||"signal")+"'>"+esc(impactTxt(b.impact))+"</span>"+
+      "<span class='rmeta'>"+esc(fld(b,"location")||"")+"</span></div>"+
+      (pts?"<ul>"+pts+"</ul>":"")+
+      (b.implication?"<div class='impl'><b>◆ "+esc(t("angle"))+"</b>"+esc(fld(b,"implication"))+"</div>":"")+
+      (b.url?"<div class='srclist'><a href='"+esc(b.url)+"' target='_blank' rel='noopener noreferrer'>"+esc(t("source"))+"</a></div>":"")+
+      "</div>";
+  }).join("")+"</div>";
+  document.getElementById("chinaBody").innerHTML="<div class='comp-anim'>"+h+"</div>";
+}
+
+/* ---- Regulation tab ---- */
+function setRegSub(s){ curRegSub=s; renderReg(); }
+function renderReg(){
+  buildSubnav("regSubnav",[{k:"rtariff",ui:"sub_rtariff"},{k:"rrules",ui:"sub_rrules"}],curRegSub,"setRegSub");
+  ["rtariff","rrules"].forEach(function(s){ var el=document.getElementById("sub-"+s); if(el) el.classList.toggle("on", s===curRegSub); });
+  document.getElementById("regTitle").textContent=t("tab_reg");
+  var r=REGDATA;
+  document.getElementById("regNote").textContent=fld(r,"note");
+  if(curRegSub==="rtariff"){
+    document.getElementById("rTariffNote").textContent=fld(r,"tariff_note");
+    mkChart("tariffChart",{
+      type:"line",
+      data:{labels:r.tariff_months,
+        datasets:r.tariff_series.map(function(s,i){
+          return {label:fld(s,"name"),data:s.values,borderColor:CHART_PALETTE[i],backgroundColor:CHART_PALETTE[i],tension:.15,pointRadius:4};
+        })},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true},tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+c.parsed.y+"%";}}}},
+        scales:{y:{beginAtZero:true,max:40,ticks:{callback:function(v){return v+"%";}}}}}
+    });
+    var th="<tr><th>"+esc(t("tbl_category"))+"</th><th>2024-01</th><th>2024-07</th><th>2025-07</th><th>2026-07 →</th></tr>";
+    r.tariff_rows.forEach(function(row){
+      th+="<tr><td><b>"+esc(fld(row,"item"))+"</b></td><td class='num'>"+esc(row.v2401)+"</td><td class='num'>"+esc(row.v2407)+"</td><td class='num'>"+esc(row.v2507)+"</td><td>"+esc(fld(row,"v2607"))+"</td></tr>";
+    });
+    document.getElementById("tariffTable").innerHTML=th;
+    document.getElementById("rTariffSrc").innerHTML=t("sources_lbl")+": "+srcLinks(r.tariff_sources);
+  } else {
+    document.getElementById("regBody").innerHTML="<div class='comp-anim'><div class='reg-grid'>"+r.rules.map(function(it){
+      return "<div class='reg'><div class='rt'><span class='rname'>"+esc(fld(it,"name"))+"</span>"+
+        "<span class='rmeta'>"+esc(fld(it,"type"))+" · "+esc(fld(it,"status"))+" · "+esc(it.date)+"</span></div>"+
+        "<p>"+esc(fld(it,"requires"))+"</p>"+
+        (it.implication?"<div class='impl'><b>◆ "+esc(t("angle"))+"</b>"+esc(fld(it,"implication"))+"</div>":"")+
+        (it.url?"<div class='srclist'><a href='"+esc(it.url)+"' target='_blank' rel='noopener noreferrer'>"+esc(t("source"))+"</a></div>":"")+
+        "</div>";
+    }).join("")+"</div></div>";
+  }
+}
+
+/* ---- boot ---- */
+function refresh(){
+  buildLangToggle(); buildTabNav(); buildHeat(); buildFilters(); buildCards(); applyStaticText(); renderCurrentTab();
+}
+applyTheme(themeDark);
+TAB_KEYS.forEach(function(x){ var el=document.getElementById("tab-"+x); if(el) el.classList.toggle("on", x===curTab); });
+refresh();
+</script>
+</body>
+</html>
