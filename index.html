@@ -238,9 +238,7 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding-top:14px;font-fa
   </div>
   <div class="date-nav">
     <span class="date-nav-label" id="archiveLabel">歷史報告</span>
-    <select id="archiveSel" onchange="if(this.value!=='#') window.location=this.value">
-      <option value="#" selected>2026-09-13</option>
-    </select>
+    <select id="archiveSel" onchange="setPeriod(this.value)"></select>
     <button class="theme-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark / light" title="Dark / Light"><span id="themeIcon">☾</span></button>
     <div class="lang-toggle" id="langToggle"></div>
   </div>
@@ -251,7 +249,10 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding-top:14px;font-fa
 <!-- ===== 1. MARKET NEWS ===== -->
 <section class="tabpanel on" id="tab-news">
 <section class="glance">
-  <h2 class="sec" style="margin-top:22px"><span id="glanceTitle">重點摘要</span> <span class="hint" id="glanceHint">— 點數字篩選</span></h2>
+  <h2 class="sec" style="margin-top:22px"><span id="snapTitle">本月快照</span></h2>
+  <div class="kpi-grid" id="snapKpi"></div>
+  <div class="caveat" id="snapGap" style="display:none"></div>
+  <h2 class="sec" style="margin-top:26px"><span id="glanceTitle">重點摘要</span> <span class="hint" id="glanceHint">— 點數字篩選</span></h2>
   <div class="summary" id="summary"></div>
   <table class="heat" id="heat"></table>
 </section>
@@ -362,6 +363,34 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding-top:14px;font-fa
   </div>
 </section>
 
+<!-- ===== 7. SALES POLICIES ===== -->
+<section class="tabpanel" id="tab-promo">
+  <h2 class="dash-h" id="promoTitle">當月銷售政策</h2>
+  <p class="dash-note" id="promoNote"></p>
+  <div class="dash-meta" id="promoMeta"></div>
+  <div class="caveat" id="promoCaveat"></div>
+  <div class="subnav" id="promoSubnav"></div>
+
+  <div class="subpanel on" id="sub-pmech">
+    <p class="dash-note" id="pMechNote"></p>
+    <div class="opp-grid" id="pMechGrid"></div>
+    <h3 class="dash-h" id="pAggTitle">各廠政策強度對照</h3>
+    <p class="dash-note" id="pAggNote"></p>
+    <div class="chart-box"><canvas id="promoChart"></canvas></div>
+    <div class="srclist" id="pAggSrc"></div>
+  </div>
+
+  <div class="subpanel" id="sub-pbrand">
+    <p class="dash-note" id="pBrandNote"></p>
+    <div id="promoBody"></div>
+  </div>
+
+  <div class="subpanel" id="sub-pread">
+    <p class="dash-note" id="pReadNote"></p>
+    <div class="opp-grid" id="pReadGrid"></div>
+  </div>
+</section>
+
 <footer id="foot"></footer>
 </div>
 
@@ -379,6 +408,91 @@ var META = {
   summary_en: "BYD has moved from 'imported EV brand' to locally-built mainstream player in Brazil. 146,930 units and 7.9% share for Jan-Aug 2026 put it 4th on the Fenabrave brand table, passing Hyundai for the first time in May. August set a record 24,467 units and 9.3% of light vehicles. The Camacari plant in Bahia hit 100,000 assembled units in nine months, with 150k/yr capacity, a 300k phase two, and 100,000 export units booked for Argentina and Mexico. Dolphin Mini led retail with 29,665 units in H1, beating the Hyundai Creta's 26,113. The macro backdrop helps: ABVE put electrified share at 21% in July, with 215,023 units in H1, up 125% against a market up 20%. The cost variable is tariffs: the Gecex-Camex ramp tops out at 35% for BEV, PHEV and HEV in July 2026, SKD included; only CKD keeps 14% through end-2026 before going to 35% in January 2027. Local capacity is now the whole game. Competition squeezes from both sides: Fiat, VW and Chevrolet above, and 15-16 Chinese brands already trading below, with Dongfeng, BAIC and Lepas confirmed to follow.",
   base_period_pt: "Acumulado jan-ago 2026 (Fenabrave)",
   summary_pt: "A BYD deixou de ser uma \"marca importadora de elétricos\" no Brasil e virou uma fabricante nacional de porte. São 146.930 unidades e 7,9% de participação no acumulado de janeiro a agosto de 2026, o que coloca a marca em 4º lugar no ranking Fenabrave — em maio ela passou a Hyundai pela primeira vez. Agosto marcou 24.467 unidades, o melhor mês da marca no país, com 9,3% do mercado de leves. A fábrica de Camaçari (BA) chegou a 100 mil veículos montados em nove meses de operação, tem capacidade de 150 mil unidades por ano, segunda etapa projetada para 300 mil, e já garantiu 100 mil unidades em pedidos de exportação: 50 mil para a Argentina e 50 mil para o México. No varejo quem puxa é o Dolphin Mini: 29.665 unidades no primeiro semestre, tirando do topo o Hyundai Creta (26.113) e liderando por quatro meses seguidos — um único modelo responde por 38,4% das vendas da marca. O pano de fundo ajuda: a ABVE aponta 21% de participação dos eletrificados em julho e 215.023 unidades no primeiro semestre, alta de 125% contra um mercado que cresceu 20%. A variável de custo é tarifária: a escada do Gecex-Camex chega ao teto de 35% para BEV, PHEV e HEV em julho de 2026, incluindo SKD; só o CKD mantém 14% até o fim de 2026 antes de ir a 35% em janeiro de 2027. Capacidade local virou o jogo inteiro. A concorrência aperta dos dois lados: Fiat, VW e Chevrolet acima, e 15 a 16 marcas chinesas já operando abaixo, com Dongfeng, BAIC e Lepas com entrada confirmada."
+};
+
+/* ---------- Monthly report periods: January 2026 → current month ----------
+   Selecting a period filters the news cards and swaps the monthly snapshot.
+   BYD monthly units: Jan/Feb/Mar/May/Jun/Aug are reported figures; Apr and Jul
+   are derived here (H1 total 99,029 minus reported months; Jan-Aug 146,930
+   minus H1 minus August) and flagged as such rather than presented as sourced. */
+var PERIODS = [
+  {k:"all",     label:"2026 全年累計",  label_en:"2026 year to date", label_pt:"Acumulado 2026"},
+  {k:"2026-09", label:"2026-09（本月）", label_en:"2026-09 (current)", label_pt:"2026-09 (atual)"},
+  {k:"2026-08", label:"2026-08"},
+  {k:"2026-07", label:"2026-07"},
+  {k:"2026-06", label:"2026-06"},
+  {k:"2026-05", label:"2026-05"},
+  {k:"2026-04", label:"2026-04"},
+  {k:"2026-03", label:"2026-03"},
+  {k:"2026-02", label:"2026-02"},
+  {k:"2026-01", label:"2026-01"}
+];
+
+var MONTHLY = {
+  note:"逐月追蹤 BYD 在巴西的量能與市場大環境。BYD 月銷量中，4 月與 7 月為本站由累計數反推，已標示；其餘為來源報導值。",
+  note_pt:"Acompanhamento mês a mês do volume da BYD e do ambiente de mercado no Brasil. Nos volumes mensais da BYD, abril e julho são estimativas próprias obtidas por diferença dos acumulados (sinalizadas); os demais são números reportados.",
+  sources:[
+    {label:"BYD do Brasil",url:"https://www.byd.com/br/byd-cresce-73-em-trimestre-historico-e-quebra-recorde-com-mais-de-16-mil-emplacamentos-em-marco-dolphin-mini-e-o-carro-mais-vendido-do-ano-no-varejo"},
+    {label:"Primo Auto",url:"https://primoauto.com.br/byd-chega-ao-top-4-do-mercado-brasileiro-com-21-704-emplacamentos-em-maio-de-2026"},
+    {label:"Autos Segredos",url:"https://www.autossegredos.com.br/marcas/byd/byd-fecha-primeiro-semestre-de-2026-como-quarta-marca-mais-vendida-do-brasil/"},
+    {label:"Carrolens (Fenabrave)",url:"https://carrolens.com.br/rankings/2026"}
+  ],
+  months:{
+    "2026-01":{byd:9801,derived:false,rank:null,share:null,
+      market:"年初市場開低，整體上牌量較去年同期微增 1.64%。",
+      market_pt:"Início de ano fraco: emplacamentos totais sobem apenas 1,64% ante o mesmo período do ano anterior.",
+      theme:"淡季起步",theme_pt:"Arranque de baixa temporada",
+      read:"BYD 從不到萬台起步，這是全年最低基期，後續每個月都在此之上。",
+      read_pt:"A BYD parte de menos de 10 mil unidades — a base mais baixa do ano, superada em todos os meses seguintes."},
+    "2026-02":{byd:11430,derived:false,rank:null,share:null,
+      market:"整體上牌量年增約 1.70%，市場仍未加速。",
+      market_pt:"Emplacamentos totais crescem cerca de 1,70% na comparação anual; o mercado ainda não acelerou.",
+      theme:"盤整",theme_pt:"Acomodação",
+      read:"BYD 月增約 16.6%，在幾乎持平的大盤中逆勢成長。",
+      read_pt:"A BYD cresce cerca de 16,6% no mês, avançando contra um mercado praticamente estável."},
+    "2026-03":{byd:16406,derived:false,rank:null,share:null,
+      market:"市場急拉：上牌量較 2 月增 36.9%，較去年 3 月增 35.3%。電動化單月破 3.5 萬台創當時新高。",
+      market_pt:"Forte aceleração: emplacamentos sobem 36,9% ante fevereiro e 35,3% ante março de 2025. Os eletrificados batem recorde com mais de 35 mil unidades no mês.",
+      theme:"第一季收尾衝刺",theme_pt:"Sprint de fechamento do 1º trimestre",
+      read:"BYD 單月破 1.6 萬台、第一季年增 73%，Dolphin Mini 確立零售冠軍地位。價格戰在此時全面開打。",
+      read_pt:"A BYD passa de 16 mil unidades no mês e fecha o 1º trimestre com alta de 73%; o Dolphin Mini consolida a liderança no varejo. É quando a guerra de preços se generaliza."},
+    "2026-04":{byd:18469,derived:true,rank:null,share:null,
+      market:"Omoda 5 油電登上全混動級距第一，中國品牌開始在混動級距正面挑戰日系。",
+      market_pt:"O Omoda 5 híbrido lidera o segmento de híbridos completos: as marcas chinesas passam a desafiar as japonesas também na hibridização.",
+      theme:"混動級距交火",theme_pt:"Confronto no segmento híbrido",
+      read:"BYD 續增但競爭面首度出現實質壓力——純電之外的級距不再是空白地帶。",
+      read_pt:"A BYD segue crescendo, mas surge a primeira pressão real: fora do 100% elétrico o terreno deixou de ser livre."},
+    "2026-05":{byd:21704,derived:false,rank:4,share:null,
+      market:"1–5 月累計 1,098,691 台（乘用＋輕商），年增 18.22%。電動化單月 44,981 台。",
+      market_pt:"Acumulado jan-mai de 1.098.691 unidades (automóveis + comerciais leves), alta de 18,22%. Eletrificados somam 44.981 unidades no mês.",
+      theme:"BYD 進入前四",theme_pt:"BYD entra no top 4",
+      read:"關鍵轉折月：BYD 以 21,704 台首度超越 Hyundai，年度累計排名升至第 4。",
+      read_pt:"Mês de virada: com 21.704 unidades a BYD supera a Hyundai pela primeira vez e sobe ao 4º lugar no acumulado."},
+    "2026-06":{byd:21219,derived:false,rank:4,share:null,
+      market:"電動化市佔達 18.3%，為當時最高。上半年電動化 215,023 台、年增 125%，整體車市僅 +20%。",
+      market_pt:"Participação dos eletrificados chega a 18,3%, a maior até então. No semestre são 215.023 eletrificados, alta de 125%, contra apenas 20% do mercado total.",
+      theme:"半年結算",theme_pt:"Fechamento do semestre",
+      read:"BYD 上半年 99,029 台、年增 107%，以第 4 名作收。Jaecoo 7、Haval H6、Tiggo 5X 同月都破 2,700 台，中國品牌內部競爭浮現。",
+      read_pt:"A BYD fecha o semestre com 99.029 unidades, alta de 107%, em 4º lugar. No mesmo mês Jaecoo 7, Haval H6 e Tiggo 5X passam de 2.700 unidades cada: a concorrência interna entre chinesas fica visível."},
+    "2026-07":{byd:23434,derived:true,rank:4,share:null,
+      market:"Anfavea 稱 7 月為 2026 年單月上牌紀錄；乘用車 279,500 台，月增 2.6%、年增 14.9%。1–7 月累計逾 170 萬台（+17.9%）。電動化市佔 21%，BEV 25,782 台、PHEV 20,500 台。關稅階梯於本月到頂 35%。",
+      market_pt:"A Anfavea aponta julho como recorde mensal de 2026; 279.500 automóveis, alta de 2,6% sobre junho e 14,9% na comparação anual. Acumulado jan-jul supera 1,7 milhão (+17,9%). Eletrificados a 21%, com 25.782 BEV e 20.500 PHEV. A escada tarifária atinge o teto de 35% neste mês.",
+      theme:"關稅到頂",theme_pt:"Teto tarifário",
+      read:"本月是分水嶺：BEV／PHEV／HEV 與 SKD 一律 35%。有本地產能的 BYD、GWM 相對受惠，純進口者成本結構轉差。",
+      read_pt:"Mês divisor de águas: BEV, PHEV, HEV e SKD todos a 35%. BYD e GWM, com produção local, saem relativamente beneficiadas; quem só importa vê a estrutura de custo piorar."},
+    "2026-08":{byd:24467,derived:false,rank:4,share:9.3,
+      market:"整體上牌量年增 16.87%。2026 年累計上牌量達 1,887,750 台。",
+      market_pt:"Emplacamentos totais crescem 16,87% na comparação anual. O acumulado de 2026 chega a 1.887.750 unidades.",
+      theme:"BYD 單月新高",theme_pt:"Recorde mensal da BYD",
+      read:"BYD 以 24,467 台創進入巴西以來最高月份，輕型車市佔 9.3%，已逼近 Chevrolet 的年度水準 10.7%。",
+      read_pt:"Com 24.467 unidades a BYD faz seu melhor mês no país e 9,3% do mercado de leves, já perto do patamar anual da Chevrolet (10,7%)."},
+    "2026-09":{byd:null,derived:false,rank:null,share:null,
+      market:"月份進行中，Fenabrave 尚未公布。本月可觀察的是各廠商業政策：BYD 推出 9/1–9/30 的置換與零利率方案，Fiat 推「Setembro Turbinado」，VW T-Cross／Tera taxa zero 至 9/30。",
+      market_pt:"Mês em andamento, sem divulgação da Fenabrave. O que é observável agora são as políticas comerciais: a BYD roda campanhas de trade-in e taxa zero de 01 a 30/09, a Fiat lança o \"Setembro Turbinado\" e a VW mantém taxa zero em T-Cross e Tera até 30/09.",
+      theme:"政策戰",theme_pt:"Guerra de condições comerciais",
+      read:"銷量數據要等月結，但商業政策已經全面展開——詳見「當月銷售政策」分頁。",
+      read_pt:"Os números de vendas só saem no fechamento, mas as condições comerciais já estão todas na rua — ver a aba \"Políticas comerciais\"."}
+  }
 };
 
 var SECTORS = {
@@ -503,11 +617,21 @@ var NEWS = [
  headline:"Fiat Strada 1–8 月 111,736 台，續居單一車型冠軍",
  headline_en:"Fiat Strada took 111,736 units Jan-Aug, still the single best-selling model",
  headline_pt:"Fiat Strada faz 111.736 unidades de jan a ago e segue como o modelo mais vendido do país",
- key_points:["小型皮卡級距是巴西獨有的量能池","BYD 目前在巴西沒有對應的皮卡量產車型參戰"],
- key_points_pt:["A picape compacta é um segmento de volume praticamente exclusivo do Brasil","A BYD não tem hoje nenhuma picape produzida localmente para disputar esse espaço"],
- insight:"Strada 代表的小型皮卡市場是 BYD 在巴西最明顯的產品空缺。BYD Shark（PHEV 皮卡）若本地化，會是直接切入點。",
- insight_pt:"O mercado de picape compacta representado pela Strada é a lacuna de produto mais evidente da BYD no Brasil. Nacionalizar a BYD Shark (picape PHEV) seria a porta de entrada direta.",
+ key_points:["小型皮卡級距是巴西獨有的量能池","BYD 有 Shark 在售（9 月零售回饋 R$ 10,000），但屬中型 PHEV 皮卡，與 Strada 的小型級距不同","BYD 在小型皮卡級距沒有對應車型，Shark 也非卡馬薩里本地組裝車款"],
+ key_points_pt:["A picape compacta é um segmento de volume praticamente exclusivo do Brasil","A BYD vende a Shark (bônus varejo de R$ 10.000 em setembro), mas é uma picape média PHEV, de segmento diferente da Strada","A BYD não tem modelo na picape compacta, e a Shark também não é montada em Camaçari"],
+ insight:"Strada 代表的小型皮卡市場是 BYD 在巴西最明顯的產品空缺。Shark 雖已在售，但級距與價格帶都對不上——真正能打的是一款本地組裝的小型皮卡。",
+ insight_pt:"A picape compacta representada pela Strada é a lacuna de produto mais evidente da BYD no Brasil. A Shark já está à venda, mas não bate em segmento nem em faixa de preço: o que realmente disputaria esse espaço é uma picape compacta montada localmente.",
  source_name:"Carrolens (Fenabrave)",source_url:"https://carrolens.com.br/rankings/2026"},
+
+{sector:"policy",region:"natl",company:"九月政策戰",company_pt:"Guerra de condições de setembro",location:"Brasil",impact:"Threat",as_of:"2026-09",
+ headline:"九月商業政策全面開打：BYD 祭出保證回購，Fiat 推「Setembro Turbinado」，VW 零利率至月底",
+ headline_en:"September's commercial war is on: BYD offers guaranteed buyback, Fiat runs 'Setembro Turbinado', VW holds zero-rate financing to month end",
+ headline_pt:"Guerra de condições comerciais em setembro: BYD com recompra garantida, Fiat lança o \"Setembro Turbinado\" e VW mantém taxa zero até o fim do mês",
+ key_points:["BYD（9/1–9/30）：Seal 置換補貼 R$ 40,000（限 BYD 舊車）；Song Plus Premium 零售回饋 R$ 30,000；Seal／Yuan Pro／Song Plus／Atto 8 零利率","BYD 保證回購：48 個月內依 FIPE 表 80% 回購，有效至 2026/12/31","Fiat：Titano 折 R$ 43,500（法人／農業）、Toro 折 R$ 42,500、Mobi Like 折 R$ 13,000 加零利率","VW：T-Cross 置換補貼最高 R$ 25,500、零利率至 9/30；Tera High 置換補貼 R$ 10,000 但限年均里程 1 萬公里內","Hyundai：Creta 折 R$ 13,500，30% 頭期、最長 60 期，直接防守被 Dolphin Mini 搶走的零售客群"],
+ key_points_pt:["BYD (01-30/09): bônus de troca de R$ 40.000 no Seal (só usados BYD); bônus varejo de R$ 30.000 no Song Plus Premium; taxa zero em Seal, Yuan Pro, Song Plus e Atto 8","Recompra garantida da BYD: 80% da tabela FIPE em até 48 meses, válida até 31/12/2026","Fiat: Titano com -R$ 43.500 (PJ/rural), Toro com -R$ 42.500 e Mobi Like com -R$ 13.000 mais taxa zero","VW: T-Cross com bônus de até R$ 25.500 e taxa zero até 30/09; Tera High com R$ 10.000, restrito a usados de no máximo 10.000 km/ano","Hyundai: Creta com -R$ 13.500, entrada de 30% e até 60 meses, defendendo diretamente o varejo perdido para o Dolphin Mini"],
+ insight:"值得注意的是 BYD 把零利率全給了 Seal、Song Plus、Atto 8 這些高價車，走量的 Dolphin Mini 反而只有 1.51% 月利率——代表入門級距的需求不需要補貼推動，壓力在中高價帶。保證回購則是本月唯一一項對手無法在下個月抄走的政策。",
+ insight_pt:"Chama atenção que a BYD reserva a taxa zero para os caros — Seal, Song Plus e Atto 8 — enquanto o Dolphin Mini, carro de volume, fica com 1,51% a.m. Ou seja: a demanda de entrada não precisa de subsídio, e a pressão está na faixa média-alta. Já a recompra garantida é a única condição do mês que a concorrência não copia no mês seguinte.",
+ source_name:"BYD Brasil（官方）",source_url:"https://www.byd.com/br/condicoes"},
 
 {sector:"china",region:"natl",company:"中國品牌總覽",company_pt:"Panorama das marcas chinesas",impact:"Threat",as_of:"2026-09",location:"Brasil",
  headline:"官方營運的中國品牌已達 15–16 家，Dongfeng、BAIC、Lepas 確認加入",
@@ -914,6 +1038,131 @@ var REGDATA = {
   ]
 };
 
+/* ---------- Sales policies, September 2026 ---------- */
+var PROMO = {
+  as_of:"2026-09",
+  note:"各車廠 2026 年 9 月在巴西的商業政策：零利率、置換補貼、零售現金回饋、保證回購與直銷通路條件。",
+  note_pt:"As políticas comerciais das montadoras no Brasil em setembro de 2026: taxa zero, bônus de troca, bônus varejo, recompra garantida e condições de venda direta.",
+  meta:"條件依 2026 年 9 月公告整理 · BYD 條件取自官方頁面，其餘取自媒體報導",
+  meta_pt:"Condições apuradas conforme divulgação de setembro de 2026 · as da BYD vêm da página oficial, as demais de reportagens",
+  caveat:"促銷條件變動極快，多數以週為單位調整，且常因車型版本、地區、經銷商、法人／PcD 身分而異。本頁僅供結構性比較，實際成交條件必須向經銷商確認。標示「未取得」者非表示該廠沒有促銷，而是本站未查到九月份可驗證的公開條件。",
+  caveat_pt:"As condições promocionais mudam muito rápido, muitas vezes semana a semana, e variam por versão, região, concessionária e perfil (PJ/PcD). Esta página serve para comparação estrutural; as condições reais devem ser confirmadas na concessionária. \"Não apurado\" não significa ausência de campanha, apenas que não localizamos condições públicas verificáveis de setembro.",
+  mech_note:"巴西車市目前同時運行五種讓利機制。理解機制比記住金額重要——金額每週變，機制決定了誰的成本結構撐得住。",
+  mech_note_pt:"O mercado brasileiro opera hoje cinco mecanismos de desconto em paralelo. Entender o mecanismo importa mais que decorar o valor: os valores mudam toda semana, mas o mecanismo define quem aguenta a estrutura de custo.",
+  mechanisms:[
+    {title:"Taxa zero（零利率）",title_pt:"Taxa zero",
+     text:"由廠端補貼利息，通常要求高額頭期（60–70%）並壓縮分期數（18–36 期）。對現金充裕的買家等於直接降價，對廠端則是資金成本。",
+     text_pt:"Os juros são subsidiados pela montadora, normalmente exigindo entrada alta (60-70%) e prazo curto (18 a 36 parcelas). Para quem tem caixa equivale a desconto direto; para a montadora é custo financeiro.",
+     impl:"BYD 的 0% 方案清一色要求 60–70% 頭期，實際觸及的是有現金的換購族群，不是首購族。",
+     impl_pt:"Os planos a 0% da BYD exigem todos entrada de 60-70%, ou seja, alcançam o público de troca com caixa, não o primeiro comprador."},
+    {title:"Bônus de troca（置換補貼）",title_pt:"Bônus de troca",
+     text:"以舊車折抵時額外加碼。分為「僅限同品牌舊車」與「不限品牌」兩種，前者用於留住既有車主，後者用於搶奪競品客群。",
+     text_pt:"Valor extra na avaliação do usado na troca. Divide-se em \"somente usados da própria marca\" e \"qualquer marca\": o primeiro retém a base de clientes, o segundo ataca a base do concorrente.",
+     impl:"BYD 的 Seal／Song Plus／Yuan Pro 置換補貼僅限 BYD 舊車，只有 Atto 8 開放他牌——這是防守型配置，說明 BYD 的既有車主基數已經大到值得經營。",
+     impl_pt:"Na BYD, o bônus de Seal, Song Plus e Yuan Pro vale só para usados BYD; apenas o Atto 8 aceita outras marcas. É uma configuração defensiva e mostra que a base instalada da marca já é grande o bastante para ser trabalhada."},
+    {title:"Bônus varejo（零售現金回饋）",title_pt:"Bônus varejo",
+     text:"不綁舊車、不綁融資的直接折讓，最接近純粹降價，也最傷殘值。",
+     text_pt:"Abatimento direto sem exigir usado nem financiamento. É o mais próximo de um corte de preço puro e o que mais pressiona o valor residual.",
+     impl:"BYD 的 Song Plus Premium 給到 R$ 30,000 零售回饋，是全線最高，顯示該版本去化壓力最大。",
+     impl_pt:"O Song Plus Premium da BYD tem R$ 30.000 de bônus varejo, o maior da linha, sinal de que é a versão com maior pressão de estoque."},
+    {title:"Recompra garantida（保證回購）",title_pt:"Recompra garantida",
+     text:"廠端承諾未來以約定比例回購，直接處理電動車買家最大的疑慮——殘值不確定。",
+     text_pt:"A montadora se compromete a recomprar o veículo por um percentual acordado, atacando diretamente a maior dúvida do comprador de elétrico: a incerteza do valor residual.",
+     impl:"BYD 承諾 48 個月內以 FIPE 表 80% 回購，有效期至 2026 年底。這是本月最具結構性的一項，其他品牌目前未見對等方案。",
+     impl_pt:"A BYD garante recompra a 80% da tabela FIPE em até 48 meses da nota fiscal, válido até 31/12/2026. É o item mais estrutural do mês, sem equivalente conhecido entre as concorrentes."},
+    {title:"Venda direta CNPJ / Rural / PcD（直銷通路）",title_pt:"Venda direta PJ / Rural / PcD",
+     text:"對法人、農業生產者與身障者的免稅或減稅通路，折扣幅度遠高於零售，但對象受限。",
+     text_pt:"Canais com isenção ou redução tributária para pessoa jurídica, produtor rural e PcD. Os descontos são muito maiores que no varejo, mas o público é restrito.",
+     impl:"Fiat 的最大折扣（Titano R$ 43,500、Strada 近 R$ 31,000）全在此通路，零售端折扣只有個位數千元——比較時把兩者混談會嚴重高估零售讓利。",
+     impl_pt:"Os maiores descontos da Fiat (Titano R$ 43.500, Strada quase R$ 31.000) estão todos nesse canal; no varejo os cortes são de poucos milhares. Misturar os dois superestima muito o desconto real ao consumidor final."}
+  ],
+  agg_note:"各廠公開的最高單筆讓利金額（R$）。柱高不代表實際成交折扣——不同品牌的基準售價與適用通路差異很大，且部分為法人／直銷專屬。僅供量級比較。",
+  agg_note_pt:"Maior valor de abatimento divulgado por marca (R$). A altura da barra não representa o desconto real de fechamento: preços-base e canais elegíveis variam muito entre marcas, e parte é exclusiva de PJ/venda direta. Serve apenas para comparação de ordem de grandeza.",
+  agg:[
+    {name:"Fiat",value:43500,kind:"直銷／法人",kind_pt:"Venda direta/PJ"},
+    {name:"BYD",value:40000,kind:"置換（限 BYD 舊車）",kind_pt:"Troca (só usados BYD)"},
+    {name:"Volkswagen",value:25500,kind:"置換",kind_pt:"Troca"},
+    {name:"Chevrolet",value:20000,kind:"零售折扣",kind_pt:"Desconto varejo"},
+    {name:"Hyundai",value:13500,kind:"零售折扣",kind_pt:"Desconto varejo"}
+  ],
+  agg_sources:[
+    {label:"BYD Brasil（官方）",url:"https://www.byd.com/br/condicoes"},
+    {label:"Mundo do Automóvel (Fiat)",url:"https://mundodoautomovelparapcd.com.br/fiat-oferta-setembro-turbinado-2026/"},
+    {label:"Auto+ TV (VW)",url:"https://www.automaistv.com.br/vendas-e-precos/volkswagen-corta-ate-r-30-mil-no-t-cross-e-deixa-suv-quase-com-preco-de-tera/"},
+    {label:"InfoMoney",url:"https://www.infomoney.com.br/consumo/descontos-carros-zero-oportunidades-montadoras/"}
+  ],
+  brand_note:"依品牌列出 2026 年 9 月的具體條件。BYD 為官方頁面資料，最為完整；其餘品牌依可查到的公開報導整理。",
+  brand_note_pt:"Condições concretas de setembro de 2026 por marca. As da BYD vêm da página oficial e são as mais completas; as demais foram compiladas de reportagens públicas disponíveis.",
+  brands:[
+    {company:"BYD",impact:"Opportunity",status:"官方公告，2026/09/01–09/30",status_pt:"Divulgação oficial, 01-30/09/2026",
+     points:["置換補貼（限 BYD 舊車）：Seal R$ 40,000；Song Plus R$ 20,000；Yuan Pro R$ 20,000","置換補貼（不限品牌）：Atto 8 R$ 15,000（BYD 舊車為 R$ 20,000）","零售回饋：Song Plus Premium R$ 30,000；Song Pro GS／Song Plus／Yuan Pro／Shark 各 R$ 10,000；King GS R$ 5,000","零利率：Yuan Pro（R$ 182,990）60% 頭期 36 期；Seal（R$ 299,990）60% 頭期 36 期；Song Plus（R$ 249,990）70% 頭期 18 期；Atto 8（R$ 399,990）70% 頭期 24 期","Dolphin Mini GS（R$ 119,990）：1.51% 月利率、70% 頭期、60 期每期 R$ 999","保證回購：48 個月內依 FIPE 表 80% 回購，有效至 2026/12/31，裝甲車除外"],
+     points_pt:["Bônus de troca (só usados BYD): Seal R$ 40.000; Song Plus R$ 20.000; Yuan Pro R$ 20.000","Bônus de troca (outras marcas): Atto 8 R$ 15.000 (com usado BYD, R$ 20.000)","Bônus varejo: Song Plus Premium R$ 30.000; Song Pro GS, Song Plus, Yuan Pro e Shark R$ 10.000 cada; King GS R$ 5.000","Taxa zero: Yuan Pro (R$ 182.990) entrada 60% em 36x; Seal (R$ 299.990) entrada 60% em 36x; Song Plus (R$ 249.990) entrada 70% em 18x; Atto 8 (R$ 399.990) entrada 70% em 24x","Dolphin Mini GS (R$ 119.990): taxa 1,51% a.m., entrada 70%, 60x de R$ 999","Recompra garantida a 80% da tabela FIPE em até 48 meses da nota fiscal, válida até 31/12/2026, exceto blindados"],
+     implication:"政策組合最完整的一家，而且是唯一有保證回購的。值得注意的是主力走量車 Dolphin Mini 並沒有零利率，只有 1.51% 月利率——BYD 把補貼集中在高價位的 Seal、Song Plus、Atto 8，顯示入門級距不需要靠補貼推動，壓力在中高價帶。",
+     implication_pt:"É a marca com o pacote mais completo e a única com recompra garantida. Vale notar que o carro de volume, o Dolphin Mini, não tem taxa zero, e sim 1,51% a.m.: a BYD concentra o subsídio em Seal, Song Plus e Atto 8, sinal de que o segmento de entrada não precisa de estímulo e a pressão está na faixa média-alta.",
+     url:"https://www.byd.com/br/condicoes"},
+    {company:"Fiat",impact:"Threat",status:"「Setembro Turbinado」活動，未公告確切截止日",status_pt:"Campanha \"Setembro Turbinado\", sem data final divulgada",
+     points:["Titano Ranch 渦輪柴油（法人／農業）：R$ 290,490 → R$ 246,990（折 R$ 43,500），另有逾 R$ 30,000 舊車增值","Strada Endurance Cabine Plus（法人／農業）：R$ 116,990 → R$ 87,790，零利率","Strada Freedom Cabine Plus（法人／農業）：R$ 123,990 → R$ 92,990","Toro Freedom T270：以 Strada／Toro 舊車換購 R$ 177,490 → R$ 134,990（折 R$ 42,500）；他牌換購自 R$ 139,990 起","Pulse Drive 1.3 手排：R$ 104,990 → R$ 99,990；自排：R$ 116,990 → R$ 109,990；Abarth：R$ 163,490 → R$ 139,990","Mobi Like：R$ 85,490 → R$ 72,490（折 R$ 13,000），零利率","Fastback Impetus Hybrid MHEV（直銷）：R$ 173,490 → R$ 134,990（折 R$ 38,500）；T200 PcD：R$ 119,990 → R$ 99,790"],
+     points_pt:["Titano Ranch turbodiesel (PJ/rural): R$ 290.490 → R$ 246.990 (-R$ 43.500), mais de R$ 30 mil de supervalorização do usado","Strada Endurance Cabine Plus (PJ/rural): R$ 116.990 → R$ 87.790, com taxa zero","Strada Freedom Cabine Plus (PJ/rural): R$ 123.990 → R$ 92.990","Toro Freedom T270: com usado Strada/Toro, R$ 177.490 → R$ 134.990 (-R$ 42.500); com outras marcas, a partir de R$ 139.990","Pulse Drive 1.3 manual: R$ 104.990 → R$ 99.990; automático: R$ 116.990 → R$ 109.990; Abarth: R$ 163.490 → R$ 139.990","Mobi Like: R$ 85.490 → R$ 72.490 (-R$ 13.000), com taxa zero","Fastback Impetus Hybrid MHEV (venda direta): R$ 173.490 → R$ 134.990 (-R$ 38.500); T200 PcD: R$ 119.990 → R$ 99.790"],
+     implication:"折扣火力集中在皮卡（Titano、Strada、Toro）與直銷通路，零售端讓利相對克制（Pulse 僅 R$ 5,000–7,000）。這正是 BYD 打不到的地方：皮卡級距的量能被法人與農業通路鎖住，不是靠零售價格戰能撬動的。",
+     implication_pt:"O poder de fogo está concentrado em picapes (Titano, Strada, Toro) e no canal de venda direta; no varejo os cortes são contidos (o Pulse cai só R$ 5.000 a R$ 7.000). É exatamente onde a BYD não alcança: o volume de picape está travado nos canais PJ e rural, e não se destrava por guerra de preço no varejo.",
+     url:"https://mundodoautomovelparapcd.com.br/fiat-oferta-setembro-turbinado-2026/"},
+    {company:"Volkswagen",impact:"Threat",status:"T-Cross／Tera 條件至 2026/09/30",status_pt:"Condições de T-Cross e Tera até 30/09/2026",
+     points:["Novo T-Cross Urban TSI 自排：零利率，自 R$ 126,990 起，有效至 2026/09/30","T-Cross：置換補貼最高 R$ 25,500，零利率最長 36 期（依版本而異）","Tera MPI：以舊車換購自 R$ 99,990 起，餘額 48 期","Tera High：置換補貼最高 R$ 10,000，限 2014–2026 年份、年均里程 1 萬公里內之舊車，須為本人或一親等名下","融資由 Banco Volkswagen 提供，月利率與年利率皆為 0.00%"],
+     points_pt:["Novo T-Cross Urban TSI automático: taxa zero, a partir de R$ 126.990, válido até 30/09/2026","T-Cross: bônus de troca de até R$ 25.500 e taxa zero em até 36x, conforme a versão","Tera MPI: a partir de R$ 99.990 com usado na troca, saldo em 48x","Tera High: bônus de até R$ 10.000 na troca, restrito a usados 2014-2026 com no máximo 10.000 km/ano e documento em nome do comprador ou parente de 1º grau","Financiamento pelo Banco Volkswagen a 0,00% a.m. e 0,00% a.a."],
+     implication:"條件設計得很精算：Tera High 的置換補貼把年均里程限制在 1 萬公里內，等於只收狀況好的舊車。VW 在保護自己的認證中古車庫存品質，這是 BYD 目前還沒建立的能力。",
+     implication_pt:"Condições muito calculadas: ao limitar o usado a 10.000 km/ano, o bônus do Tera High só aceita carros em bom estado. A VW está protegendo a qualidade do próprio estoque de seminovos — uma capacidade que a BYD ainda não construiu.",
+     url:"https://www.automaistv.com.br/vendas-e-precos/volkswagen-corta-ate-r-30-mil-no-t-cross-e-deixa-suv-quase-com-preco-de-tera/"},
+    {company:"Hyundai",impact:"Threat",status:"九月條件，未公告確切截止日",status_pt:"Condições de setembro, sem data final divulgada",
+     points:["HB20S Comfort 1.0 手排：R$ 103,090 → R$ 95,990（現金價）","HB20S Limited 1.0 手排：表價 R$ 105,290，置換補貼最高 R$ 9,000","HB20 Platinum 版本：置換補貼 R$ 8,000","Creta Limited：R$ 139,190（折 R$ 13,500）","Creta Comfort Plus：R$ 129,500（折 R$ 10,500，現金價）","Creta Platinum Safety 置換增值 R$ 9,000；頂規 Ultimate 置換補貼 R$ 10,000","Creta 全系可 30% 頭期、最長 60 期","HB20 線亦提供零利率方案"],
+     points_pt:["HB20S Comfort 1.0 manual: R$ 103.090 → R$ 95.990 à vista","HB20S Limited 1.0 manual: tabela R$ 105.290, com bônus de até R$ 9.000 na troca","HB20 versões Platinum: bônus de R$ 8.000 no usado","Creta Limited: R$ 139.190 (-R$ 13.500)","Creta Comfort Plus: R$ 129.500 (-R$ 10.500) à vista","Creta Platinum Safety: R$ 9.000 de supervalorização do usado; topo de linha Ultimate com R$ 10.000 de bônus","Linha Creta com entrada de 30% e saldo em até 60 meses","Linha HB20 também com taxa zero"],
+     implication:"Hyundai 的防守直接針對 BYD：Creta 正是上半年被 Dolphin Mini 擠下零售冠軍的車型，而它給的是 30% 低頭期、60 期長分期——與 BYD 要求 60–70% 頭期的零利率剛好相反，搶的是現金不足但要月付低的買家。",
+     implication_pt:"A defesa da Hyundai mira diretamente a BYD: o Creta é justamente o modelo destronado pelo Dolphin Mini no varejo do 1º semestre, e a resposta é entrada baixa de 30% com 60 meses — o oposto da taxa zero da BYD, que exige 60-70% de entrada. Disputa-se aqui o comprador sem caixa que precisa de parcela baixa.",
+     url:"https://mundodoautomovelparapcd.com.br/hyundai-hb20-2026-entra-em-oferta-com-r-14-mil-de-desconto-e-taxa-zero-veja-condicoes/"},
+    {company:"Chevrolet",impact:"Threat",status:"官方優惠頁面持續更新，本站未能取得逐項條件",status_pt:"Página oficial de ofertas atualizada continuamente; não foi possível apurar item a item",
+     points:["報導指出 Onix 與純電 SUV Captiva EV 折扣最高達 R$ 20,000","官方設有常態性 taxa zero 優惠專頁","逐項條件未能取得：官方頁面拒絕本站存取（HTTP 403）"],
+     points_pt:["Reportagens indicam descontos de até R$ 20.000 em modelos como o Onix e o SUV elétrico Captiva EV","A marca mantém página oficial permanente de ofertas com taxa zero","Condições item a item não apuradas: a página oficial bloqueou o acesso (HTTP 403)"],
+     implication:"Captiva EV 進入折扣名單值得注意——這是傳統品牌在純電級距直接對上 BYD 的少數案例之一。但本站無法確認其九月具體條件，此處僅列報導值。",
+     implication_pt:"A entrada do Captiva EV na lista de descontos merece atenção: é um dos poucos casos de marca tradicional enfrentando a BYD diretamente no 100% elétrico. Mas não conseguimos confirmar as condições de setembro, então fica registrado apenas o valor reportado.",
+     url:"https://www.infomoney.com.br/consumo/descontos-carros-zero-oportunidades-montadoras/"},
+    {company:"Mitsubishi",impact:"Signal",status:"區域性活動，Expofeira 2026，至 2026/09/13",status_pt:"Ação regional, Expofeira 2026, até 13/09/2026",
+     points:["折扣最高 R$ 48,000","零利率，餘額最長 24 期；另有半年期付款方案","限巴伊亞州 Feira de Santana 之 Expofeira 2026 活動期間"],
+     points_pt:["Descontos de até R$ 48.000","Taxa zero com saldo em até 24 parcelas, além de planos com pagamentos semestrais","Restrito ao período da Expofeira 2026, em Feira de Santana (BA)"],
+     implication:"列入是因為地點：Feira de Santana 就在巴伊亞州，距 BYD 卡馬薩里廠不遠。區域型展銷會在東北部仍是有效通路，而 BYD 的通路縱深正好是弱項。",
+     implication_pt:"Entra na lista pelo local: Feira de Santana fica na Bahia, não longe da fábrica da BYD em Camaçari. Feirões regionais ainda são canal relevante no Nordeste — e profundidade de rede é justamente o ponto fraco da BYD.",
+     url:"https://mundodoautomovelparapcd.com.br/mitsubishi-coloca-linha-zero-km-em-oferta-com-descontos-de-ate-r-48-mil-e-taxa-zero/"},
+    {company:"Toyota · Renault · Jeep · Honda · GWM",impact:"Signal",status:"未取得九月可驗證條件",status_pt:"Condições de setembro não apuradas",
+     points:["本站未查到這五家 2026 年 9 月的可驗證公開促銷條件","有報導提及 Renault Duster 折扣約 R$ 20,000，但未標註適用月份，故不列為九月條件","「未取得」不等於「沒有促銷」——在目前的價格戰環境下，這幾家幾乎確定有在檔活動"],
+     points_pt:["Não localizamos condições promocionais públicas e verificáveis dessas cinco marcas para setembro de 2026","Há menção a cerca de R$ 20.000 de desconto no Renault Duster, mas sem indicação do mês de vigência, por isso não é listado como condição de setembro","\"Não apurado\" não equivale a \"sem campanha\": no atual ambiente de guerra de preços é quase certo que haja ações em curso"],
+     implication:"這是本頁最大的資料缺口。這五家合計市佔約 21.4%（Toyota 5.9 + Renault 4.6 + Jeep 4.0 + Honda 4.0 + GWM 2.9），缺了它們的政策資料，競爭全貌就不完整。建議直接向經銷商或各廠官網補齊。",
+     implication_pt:"É a maior lacuna desta página. Juntas essas cinco marcas somam cerca de 21,4% do mercado (Toyota 5,9 + Renault 4,6 + Jeep 4,0 + Honda 4,0 + GWM 2,9); sem as políticas delas o quadro competitivo fica incompleto. Recomenda-se completar direto com concessionárias ou sites oficiais.",
+     url:""}
+  ],
+  read_note:"從九月的政策配置可以讀出幾件銷量數字看不到的事。",
+  read_note_pt:"A configuração das políticas de setembro revela algumas coisas que os números de vendas não mostram.",
+  reads:[
+    {title:"BYD 的補貼往上走，不往下走",title_pt:"O subsídio da BYD sobe de faixa, não desce",
+     text:"走量的 Dolphin Mini 沒有零利率（1.51% 月利率），而 Seal、Song Plus、Atto 8 全是 0%。補貼集中在高價帶，代表入門級距的需求自己會跑，中高價帶才需要推。",
+     text_pt:"O Dolphin Mini, carro de volume, não tem taxa zero (1,51% a.m.), enquanto Seal, Song Plus e Atto 8 estão todos a 0%. O subsídio se concentra na faixa alta, o que indica que a demanda de entrada anda sozinha e é a faixa média-alta que precisa de empurrão.",
+     impl:"對 BYD：Dolphin Mini 的成功不必用補貼維持，這是好事；但中高價帶的滲透仍需付出代價。"},
+    {title:"置換補貼的方向透露攻守",title_pt:"A direção do bônus de troca revela ataque e defesa",
+     text:"BYD 的高額置換補貼僅限自家舊車（Seal R$ 40,000），只有 Atto 8 開放他牌。VW 則對他牌開放但限制車況。Fiat 的 Toro 同時設「自家舊車」與「他牌舊車」兩種價格。",
+     text_pt:"Os maiores bônus da BYD valem só para usados da própria marca (Seal, R$ 40.000), com o Atto 8 como única exceção. A VW aceita outras marcas, mas restringe o estado do veículo. E a Fiat precifica o Toro em dois níveis: usado da casa e usado de terceiros.",
+     impl:"BYD 已經從「拉新」轉向「留舊」，這是品牌成熟的訊號，但也意味著純增量來源正在變窄。"},
+    {title:"保證回購是目前唯一的結構性差異",title_pt:"A recompra garantida é hoje a única diferença estrutural",
+     text:"折扣與利率都能被跟進，而且通常在幾週內就被跟進。BYD 的 FIPE 80% / 48 個月回購承諾處理的是殘值風險，需要資產負債表承擔，不是短期促銷能複製的。",
+     text_pt:"Descontos e taxas são replicáveis, e normalmente são replicados em poucas semanas. Já o compromisso da BYD de recomprar a 80% da FIPE em até 48 meses ataca o risco de valor residual, exige balanço para sustentar e não se copia com uma promoção de curto prazo.",
+     impl:"這是本月唯一一項競爭對手無法在下個月抄走的政策。但它的有效期只到 2026/12/31，值得追蹤是否續辦。"},
+    {title:"皮卡級距的讓利跟 BYD 無關",title_pt:"O desconto em picapes não passa pela BYD",
+     text:"Fiat 九月最大的三筆折扣（Titano R$ 43,500、Toro R$ 42,500、Strada 近 R$ 31,000）全在皮卡，且多為法人／農業直銷。BYD 雖有 Shark 在售（零售回饋 R$ 10,000），但屬中型 PHEV 皮卡，與 Strada 所在的小型皮卡級距不同。",
+     text_pt:"Os três maiores cortes da Fiat em setembro (Titano R$ 43.500, Toro R$ 42.500, Strada quase R$ 31.000) estão todos em picapes, e em boa parte no canal PJ/rural. A BYD tem a Shark à venda (bônus varejo de R$ 10.000), mas é uma picape média PHEV, de segmento diferente da compacta onde está a Strada.",
+     impl:"巴西最大的單一量能池仍在 BYD 的射程外，而且那裡的價格戰是用稅務通路打的，不是用零售折扣打的。"},
+    {title:"Hyundai 的反擊路徑與 BYD 相反",title_pt:"A contra-ofensiva da Hyundai vai na direção oposta",
+     text:"BYD 零利率要求 60–70% 頭期；Hyundai Creta 給 30% 頭期、60 期。兩者搶的不是同一群人——前者是有現金的換購客，後者是月付敏感的首購或升級客。",
+     text_pt:"A taxa zero da BYD exige entrada de 60-70%; o Creta da Hyundai oferece entrada de 30% em 60 meses. Não disputam o mesmo comprador: um é o cliente de troca com caixa, o outro é o comprador sensível à parcela, primeiro carro ou upgrade.",
+     impl:"BYD 在「低頭期、長分期」這一塊目前沒有對應方案，而那是巴西市場的主流購車方式。"}
+  ]
+};
+
 /* =========================================================================
    i18n + rendering
    ========================================================================= */
@@ -943,6 +1192,23 @@ var UI = {
   tab_top10:{"zh-Hant":"主要競品 Top 10","zh-Hans":"主要竞品 Top 10",en:"Top-10 Rivals",pt:"Top 10 rivais",ja:"主要競合 Top 10"},
   tab_china:{"zh-Hant":"中國品牌","zh-Hans":"中国品牌",en:"Chinese Brands",pt:"Marcas chinesas",ja:"中国ブランド"},
   tab_reg:{"zh-Hant":"法規與關稅","zh-Hans":"法规与关税",en:"Rules & Tariffs",pt:"Regras & tarifas",ja:"規制・関税"},
+  tab_promo:{"zh-Hant":"當月銷售政策","zh-Hans":"当月销售政策",en:"Sales Policies",pt:"Políticas comerciais",ja:"販売施策"},
+  /* promo subtabs */
+  sub_pmech:{"zh-Hant":"讓利機制","zh-Hans":"让利机制",en:"Mechanisms",pt:"Mecanismos",ja:"値引き手法"},
+  sub_pbrand:{"zh-Hant":"各廠條件","zh-Hans":"各厂条件",en:"By Brand",pt:"Por marca",ja:"ブランド別"},
+  sub_pread:{"zh-Hant":"解讀","zh-Hans":"解读",en:"Read-through",pt:"Leitura",ja:"読み解き"},
+  p_agg_title:{"zh-Hant":"各廠政策強度對照","zh-Hans":"各厂政策强度对照",en:"Headline discount by brand",pt:"Maior abatimento por marca",ja:"ブランド別の最大値引き"},
+  /* monthly snapshot */
+  snapshot:{"zh-Hant":"本月快照","zh-Hans":"本月快照",en:"Period snapshot",pt:"Retrato do período",ja:"期間スナップショット"},
+  snap_byd:{"zh-Hant":"BYD 當月上牌","zh-Hans":"BYD 当月上牌",en:"BYD units",pt:"Emplacamentos BYD",ja:"BYD 登録台数"},
+  snap_rank:{"zh-Hant":"品牌排名","zh-Hans":"品牌排名",en:"Brand rank",pt:"Posição da marca",ja:"ブランド順位"},
+  snap_share:{"zh-Hant":"輕型車市佔","zh-Hans":"轻型车市占",en:"Light-vehicle share",pt:"Part. em leves",ja:"小型車シェア"},
+  snap_theme:{"zh-Hant":"當月主軸","zh-Hans":"当月主轴",en:"Theme",pt:"Tema do mês",ja:"当月のテーマ"},
+  snap_market:{"zh-Hant":"市場動態","zh-Hans":"市场动态",en:"Market",pt:"Mercado",ja:"市場動向"},
+  derived_lbl:{"zh-Hant":"本站推算","zh-Hans":"本站推算",en:"derived here",pt:"estimativa própria",ja:"当サイト推計"},
+  no_data:{"zh-Hant":"尚未公布","zh-Hans":"尚未公布",en:"not yet released",pt:"ainda não divulgado",ja:"未公表"},
+  period_all:{"zh-Hant":"2026 全年累計","zh-Hans":"2026 全年累计",en:"2026 year to date",pt:"Acumulado 2026",ja:"2026年累計"},
+  monthly_title:{"zh-Hant":"BYD 逐月上牌量","zh-Hans":"BYD 逐月上牌量",en:"BYD monthly registrations",pt:"Emplacamentos mensais da BYD",ja:"BYD 月次登録台数"},
   /* byd subtabs */
   sub_bstrat:{"zh-Hant":"戰略機會","zh-Hans":"战略机会",en:"Strategy",pt:"Estratégia",ja:"戦略"},
   sub_bvol:{"zh-Hant":"銷售量能","zh-Hans":"销售量能",en:"Volume",pt:"Volume",ja:"販売量"},
@@ -1019,10 +1285,71 @@ function toggleTheme(){
 /* ---- news filters ---- */
 var sectorKeys = Object.keys(SECTORS), regionKeys = Object.keys(REGIONS);
 var fSector="all", fRegion="all";
+
+/* ---- Report period (Jan 2026 → current month) ----
+   An item's as_of decides which months it belongs to:
+     "2026-08"    → August only        "2026-03-13" → March only
+     "2026-H1"    → January to June    "2026"       → every month (structural)  */
+var curPeriod = "2026-09";
+try{ var sp = localStorage.getItem("bydPeriod"); if(sp && PERIODS.some(function(p){return p.k===sp;})) curPeriod = sp; }catch(e){}
+
+function itemInPeriod(it, period){
+  if(period === "all") return true;
+  var a = String(it.as_of || "");
+  if(a === "2026") return true;                       // structural, shown in every month
+  if(a === "2026-H1") return period >= "2026-01" && period <= "2026-06";
+  var m = a.match(/^(\d{4}-\d{2})/);
+  return m ? m[1] === period : true;
+}
+function periodLabel(k){
+  var p = PERIODS.filter(function(x){return x.k===k;})[0];
+  return p ? (fld(p,"label") || p.label) : k;
+}
+function buildPeriodSelect(){
+  var el = document.getElementById("archiveSel"); if(!el) return;
+  el.innerHTML = PERIODS.map(function(p){
+    return "<option value='"+esc(p.k)+"'"+(p.k===curPeriod?" selected":"")+">"+esc(periodLabel(p.k))+"</option>";
+  }).join("");
+}
+function setPeriod(k){
+  if(!PERIODS.some(function(p){return p.k===k;})) return;
+  curPeriod = k;
+  try{ localStorage.setItem("bydPeriod", k); }catch(e){}
+  buildHeat(); buildFilters(); buildCards(); renderSnapshot();
+}
+function renderSnapshot(){
+  var wrap = document.getElementById("snapKpi"), gap = document.getElementById("snapGap");
+  var tEl = document.getElementById("snapTitle"); if(tEl) tEl.textContent = t("snapshot") + " — " + periodLabel(curPeriod);
+  if(!wrap) return;
+  if(curPeriod === "all"){
+    wrap.innerHTML = kpiHtml([
+      {k:t("snap_byd"), v:"146,930", s:"2026 年 1–8 月累計"+(lang==="pt"?" (jan-ago 2026)":"")},
+      {k:t("snap_rank"), v:"#4", s:"Fiat・Volkswagen・Chevrolet 之後"},
+      {k:t("snap_share"), v:"7.9%", s:"8 月單月已達 9.3%"},
+      {k:t("snap_theme"), v:"—", s:fld(MONTHLY,"note")}
+    ]);
+    if(gap) gap.style.display = "none";
+    return;
+  }
+  var d = MONTHLY.months[curPeriod];
+  if(!d){ wrap.innerHTML = ""; if(gap) gap.style.display="none"; return; }
+  var bydVal = d.byd == null ? t("no_data") : fmtNum(d.byd);
+  var bydSub = d.byd == null ? fld(d,"market").slice(0,60) : (d.derived ? t("derived_lbl") : "");
+  wrap.innerHTML = kpiHtml([
+    {k:t("snap_byd"),   v:bydVal, s:bydSub},
+    {k:t("snap_rank"),  v:d.rank ? ("#"+d.rank) : "—", s:d.rank ? "" : t("no_data")},
+    {k:t("snap_share"), v:d.share ? (d.share+"%") : "—", s:d.share ? "" : t("no_data")},
+    {k:t("snap_theme"), v:"", s:fld(d,"theme")}
+  ]);
+  if(gap){
+    gap.style.display = "block";
+    gap.innerHTML = "<b>"+esc(t("snap_market"))+"</b>"+esc(fld(d,"market"))+"<br><br><b>"+esc(t("angle"))+"</b>"+esc(fld(d,"read"));
+  }
+}
 function sectorLabel(s){ return fld(SECTORS[s]||{}, "label") || s; }
 function regionLabel(r){ return fld(REGIONS[r]||{}, "label") || r; }
 function regionShort(r){ return fld(REGIONS[r]||{}, "short") || regionLabel(r); }
-function count(s,r){ return NEWS.filter(function(it){ return (s==="all"||it.sector===s)&&(r==="all"||it.region===r); }).length; }
+function count(s,r){ return NEWS.filter(function(it){ return itemInPeriod(it,curPeriod)&&(s==="all"||it.sector===s)&&(r==="all"||it.region===r); }).length; }
 
 function buildLangToggle(){
   document.getElementById("langToggle").innerHTML = LANGS.map(function(l){
@@ -1062,7 +1389,7 @@ function buildFilters(){
 var IMPACT_CLS={Threat:"threat",Opportunity:"opp",Signal:""};
 function impactTxt(i){ return i==="Threat"?t("t_threat"):i==="Opportunity"?t("t_opp"):t("t_signal"); }
 function buildCards(){
-  var items=NEWS.filter(function(it){ return (fSector==="all"||it.sector===fSector)&&(fRegion==="all"||it.region===fRegion); });
+  var items=NEWS.filter(function(it){ return itemInPeriod(it,curPeriod)&&(fSector==="all"||it.sector===fSector)&&(fRegion==="all"||it.region===fRegion); });
   document.getElementById("cards").innerHTML = items.map(function(it){
     var pts=(fld(it,"key_points")||[]).map(function(k){ return "<li>"+esc(k)+"</li>"; }).join("");
     var tag = it.confidence==="low"
@@ -1117,9 +1444,9 @@ function setFilter(s,r){ fSector=s; fRegion=r; buildHeat(); buildFilters(); buil
 function setLang(l){ if(LANGS.indexOf(l)<0) return; lang=l; try{ localStorage.setItem("bydLang",l); }catch(e){} refresh(); }
 
 /* ================= Tabs ================= */
-var TAB_KEYS=["news","byd","market","top10","china","reg"];
-var TAB_UI={news:"tab_news",byd:"tab_byd",market:"tab_market",top10:"tab_top10",china:"tab_china",reg:"tab_reg"};
-var curTab="news", curBydSub="bstrat", curMktSub="mtotal", curRegSub="rtariff", topSel=3, curChinaType=0;
+var TAB_KEYS=["news","byd","market","top10","china","reg","promo"];
+var TAB_UI={news:"tab_news",byd:"tab_byd",market:"tab_market",top10:"tab_top10",china:"tab_china",reg:"tab_reg",promo:"tab_promo"};
+var curTab="news", curBydSub="bstrat", curMktSub="mtotal", curRegSub="rtariff", curPromoSub="pmech", topSel=3, curChinaType=0;
 try{ var st=localStorage.getItem("bydTab"); if(st && TAB_KEYS.indexOf(st)>=0) curTab=st; }catch(e){}
 
 function buildTabNav(){
@@ -1141,6 +1468,7 @@ function renderCurrentTab(){
   else if(curTab==="top10") renderTop10();
   else if(curTab==="china") renderChina();
   else if(curTab==="reg") renderReg();
+  else if(curTab==="promo") renderPromo();
 }
 function buildSubnav(containerId, subs, cur, setter){
   document.getElementById(containerId).innerHTML = subs.map(function(s){
@@ -1169,21 +1497,28 @@ function renderByd(){
         (o.sources?"<div class='srclist'>"+esc(t("source"))+": "+srcLinks(o.sources)+"</div>":"")+"</div>";
     }).join("");
   } else if(curBydSub==="bvol"){
-    document.getElementById("bVolNote").textContent=fld(d,"vol_note");
+    document.getElementById("bVolNote").textContent=fld(MONTHLY,"note");
     document.getElementById("bKpi").innerHTML=kpiHtml(d.kpis);
+    /* Monthly series: reported months solid, derived months hatched via a lighter fill */
+    var mk = Object.keys(MONTHLY.months).filter(function(k){ return MONTHLY.months[k].byd != null; }).sort();
     mkChart("bVolChart",{
       type:"bar",
-      data:{labels:d.volume.map(function(v){return fld(v,"label");}),
-        datasets:[{label:"台",data:d.volume.map(function(v){return v.value;}),
-          backgroundColor:d.volume.map(function(v){return v.kind==="target"?CHART_PALETTE[2]:CHART_PALETTE[0];})}]},
+      data:{labels:mk,
+        datasets:[{label:t("monthly_title"),data:mk.map(function(k){return MONTHLY.months[k].byd;}),
+          backgroundColor:mk.map(function(k){
+            return MONTHLY.months[k].derived
+              ? (themeDark?"rgba(52,211,153,.38)":"rgba(11,110,61,.34)")
+              : CHART_PALETTE[0];
+          })}]},
       options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
-          var v=d.volume[c.dataIndex];
-          return fmtNum(c.parsed.y)+"  ("+(v.kind==="target"?t("target"):t("actual"))+") — "+fld(v,"note");
+          var m=MONTHLY.months[mk[c.dataIndex]];
+          return fmtNum(c.parsed.y)+(m.derived?"  ("+t("derived_lbl")+")":"")+" — "+fld(m,"theme");
         }}}},
-        scales:{y:{ticks:{callback:function(v){return fmtNum(v);}}}}}
+        scales:{y:{ticks:{callback:function(v){return fmtNum(v);}}}},
+        onClick:function(e,els){ if(els.length){ setPeriod(mk[els[0].index]); setTab("news"); } }}
     });
-    document.getElementById("bVolSrc").innerHTML=t("sources_lbl")+": "+srcLinks(d.vol_sources);
+    document.getElementById("bVolSrc").innerHTML=t("sources_lbl")+": "+srcLinks(MONTHLY.sources)+" · "+srcLinks(d.vol_sources);
   } else if(curBydSub==="bmodel"){
     document.getElementById("bModelNote").textContent=fld(d,"model_note");
     document.getElementById("bModelCaveat").innerHTML="<b>"+esc(t("caveat_lbl"))+"</b>"+esc(fld(d,"model_caveat"));
@@ -1335,9 +1670,65 @@ function renderReg(){
   }
 }
 
+/* ---- Sales policies ---- */
+function setPromoSub(s){ curPromoSub=s; renderPromo(); }
+function renderPromo(){
+  var p=PROMO;
+  buildSubnav("promoSubnav",[{k:"pmech",ui:"sub_pmech"},{k:"pbrand",ui:"sub_pbrand"},{k:"pread",ui:"sub_pread"}],curPromoSub,"setPromoSub");
+  ["pmech","pbrand","pread"].forEach(function(s){ var el=document.getElementById("sub-"+s); if(el) el.classList.toggle("on", s===curPromoSub); });
+  document.getElementById("promoTitle").textContent=t("tab_promo");
+  document.getElementById("promoNote").textContent=fld(p,"note");
+  document.getElementById("promoMeta").textContent=fld(p,"meta");
+  document.getElementById("promoCaveat").innerHTML="<b>"+esc(t("caveat_lbl"))+"</b>"+esc(fld(p,"caveat"));
+
+  if(curPromoSub==="pmech"){
+    document.getElementById("pMechNote").textContent=fld(p,"mech_note");
+    document.getElementById("pMechGrid").innerHTML=p.mechanisms.map(function(m){
+      return "<div class='opp'><h4>"+esc(fld(m,"title"))+"</h4><p>"+esc(fld(m,"text"))+"</p>"+
+        (m.impl?"<div class='impl'><b>◆ "+esc(t("angle"))+"</b>"+esc(fld(m,"impl"))+"</div>":"")+"</div>";
+    }).join("");
+    document.getElementById("pAggTitle").textContent=t("p_agg_title");
+    document.getElementById("pAggNote").textContent=fld(p,"agg_note");
+    mkChart("promoChart",{
+      type:"bar",
+      data:{labels:p.agg.map(function(a){return a.name;}),
+        datasets:[{label:"R$",data:p.agg.map(function(a){return a.value;}),
+          backgroundColor:p.agg.map(function(a){ return a.name==="BYD" ? CHART_PALETTE[0] : (themeDark?"rgba(95,132,116,.45)":"rgba(90,110,99,.32)"); })}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
+          return "R$ "+fmtNum(c.parsed.y)+" — "+fld(p.agg[c.dataIndex],"kind");
+        }}}},
+        scales:{y:{ticks:{callback:function(v){return "R$ "+fmtNum(v);}}}}}
+    });
+    document.getElementById("pAggSrc").innerHTML=t("sources_lbl")+": "+srcLinks(p.agg_sources);
+
+  } else if(curPromoSub==="pbrand"){
+    document.getElementById("pBrandNote").textContent=fld(p,"brand_note");
+    var bcls={Threat:"threat",Opportunity:"opp",Signal:"signal"};
+    document.getElementById("promoBody").innerHTML="<div class='comp-anim'><div class='reg-grid'>"+p.brands.map(function(b){
+      var pts=(fld(b,"points")||[]).map(function(x){return "<li>"+esc(x)+"</li>";}).join("");
+      return "<div class='reg'><div class='rt'><span class='rname'>"+esc(b.company)+"</span>"+
+        "<span class='badge "+(bcls[b.impact]||"signal")+"'>"+esc(impactTxt(b.impact))+"</span>"+
+        "<span class='rmeta'>"+esc(fld(b,"status"))+"</span></div>"+
+        (pts?"<ul>"+pts+"</ul>":"")+
+        (b.implication?"<div class='impl'><b>◆ "+esc(t("angle"))+"</b>"+esc(fld(b,"implication"))+"</div>":"")+
+        (b.url?"<div class='srclist'><a href='"+esc(b.url)+"' target='_blank' rel='noopener noreferrer'>"+esc(t("source"))+"</a></div>":"")+
+        "</div>";
+    }).join("")+"</div></div>";
+
+  } else {
+    document.getElementById("pReadNote").textContent=fld(p,"read_note");
+    document.getElementById("pReadGrid").innerHTML=p.reads.map(function(r){
+      return "<div class='opp'><h4>"+esc(fld(r,"title"))+"</h4><p>"+esc(fld(r,"text"))+"</p>"+
+        (r.impl?"<div class='impl'><b>▶ "+esc(t("action"))+"</b>"+esc(fld(r,"impl"))+"</div>":"")+"</div>";
+    }).join("");
+  }
+}
+
 /* ---- boot ---- */
 function refresh(){
-  buildLangToggle(); buildTabNav(); buildHeat(); buildFilters(); buildCards(); applyStaticText(); renderCurrentTab();
+  buildLangToggle(); buildPeriodSelect(); buildTabNav(); buildHeat(); buildFilters(); buildCards();
+  applyStaticText(); renderSnapshot(); renderCurrentTab();
 }
 applyTheme(themeDark);
 TAB_KEYS.forEach(function(x){ var el=document.getElementById("tab-"+x); if(el) el.classList.toggle("on", x===curTab); });
