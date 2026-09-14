@@ -64,7 +64,10 @@ body{
 .report-date{font-size:26px;font-weight:600;color:var(--bar-ink);letter-spacing:.5px;line-height:1.1;font-variant-numeric:tabular-nums}
 .date-window{font-size:11px;font-weight:400;color:rgba(255,255,255,.62);letter-spacing:.2px}
 .date-nav{width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px;padding-top:13px;border-top:1px solid rgba(255,255,255,.16)}
-.date-nav-label{font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;font-weight:600;color:var(--muted)}
+/* The masthead keeps its charcoal ground in both themes, so everything
+   inside it takes fixed light-on-dark colours — theme tokens invert here
+   and would put near-white type on a white chip. */
+.date-nav-label{font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.6)}
 
 /* ---------- Language + theme controls ---------- */
 .lang-toggle{margin-left:auto;display:flex;flex-wrap:wrap;border:1px solid rgba(255,255,255,.28);overflow:hidden;flex-shrink:0}
@@ -75,7 +78,7 @@ body{
 }
 .lang-toggle button:first-child{border-left:0}
 .lang-toggle button:hover{background:rgba(255,255,255,.1);color:#fff}
-.lang-toggle button.on{background:#fff;color:var(--ink)}
+.lang-toggle button.on{background:#fff;color:#252728}
 .theme-btn{
   font-family:inherit;font-size:13px;line-height:1;padding:6px 11px;
   border:1px solid rgba(255,255,255,.28);background:transparent;color:rgba(255,255,255,.85);cursor:pointer;transition:background .15s;
