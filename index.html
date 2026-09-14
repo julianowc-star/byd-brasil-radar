@@ -1242,11 +1242,48 @@ var UI = {
   target:{"zh-Hant":"目標","zh-Hans":"目标",en:"Target",pt:"Meta",ja:"目標"},
   foot_note:{"zh-Hant":"本站為市場情報彙整，非投資建議。所有數字均附來源連結；標示為「本站計算」或「目標」者非官方實績。內容提供繁體中文與巴西葡文完整版本，介面支援五語系。","zh-Hans":"本站为市场情报汇整，非投资建议。所有数字均附来源链接；标示为「本站计算」或「目标」者非官方实绩。内容提供繁体中文与巴西葡文完整版本，界面支持五语系。",en:"Market intelligence only, not investment advice. Every figure carries a source link; items marked as our own calculation or as a target are not official actuals. Body content is available in full in Traditional Chinese and Brazilian Portuguese; the interface supports five languages.",pt:"Inteligência de mercado, não é recomendação de investimento. Todos os números trazem link de fonte; itens marcados como cálculo próprio ou meta não são dados oficiais realizados. O conteúdo está disponível na íntegra em chinês tradicional e português do Brasil; a interface tem cinco idiomas.",ja:"本サイトは市場情報のまとめであり、投資助言ではありません。すべての数値に出典リンクを付しています。"}
 };
-function t(k){ return (UI[k] && UI[k][lang]) || (UI[k] && UI[k]["zh-Hant"]) || ""; }
-function fld(o, base){ if(!o) return ""; var k = base + "_" + (lang==="zh-Hans"?"zh-Hans":lang==="en"?"en":lang==="pt"?"pt":lang==="ja"?"ja":"zh-Hant");
-  if(o[k]!=null) return o[k];
-  if(lang==="zh-Hans" && o[base+"_zh-Hans"]==null) return o[base];
-  return o[base]!=null ? o[base] : ""; }
+/* ---- Traditional → Simplified -------------------------------------------
+   Body content is authored in zh-Hant. Rather than maintaining a parallel
+   zh-Hans copy of every string, simplified Chinese is produced at runtime:
+   first a small Taiwan→mainland vocabulary pass, then a character map.
+   An explicit *_zh-Hans field on a record still wins over this conversion. */
+var SC_TC = "內佔兌別夾決沒見車並亞來兩屆東況爭狀長門則為紀約訂計負軌軍頁風個們剛員庫徑時納紐純紙級脅訊記針馬側動務區參啟國執將專帶張強從採條現產異終組統處術規設販這連頂備創單報場幾惡換殘減渦無發稅筆結絕給華著視註評買費貼軸週進開間隊階項順須傳債傷僅勢塊彙搶會業極準溫當綁經義萬號補裝裡試該詳賃資跡較農運過達電預劃圖團奪實對態暢構滲滿漲種稱維網聞與蓋製認誘語誤說輕遠際齊價層廠慮撐數標樞樣盤確碼範線衝複誰課調談質輛輪適銷鋒鋪餘導戰擁擔據機歷獨篩親諾賴辦選錄錯險頭優壓嶺應擊擠檔營牆環縮縱總績聯購賽還鍵雖韓點擴斷檻職舊薩蹤轉鎖雙題額礙穩證鏈關類嚴競籌繼觸議贏釋饋屬續覽護躍響驅攤權疊讀變顯驗體讓觀";
+var SC_SC = "内占兑别夹决没见车并亚来两届东况争状长门则为纪约订计负轨军页风个们刚员库径时纳纽纯纸级胁讯记针马侧动务区参启国执将专带张强从采条现产异终组统处术规设贩这连顶备创单报场几恶换残减涡无发税笔结绝给华着视注评买费贴轴周进开间队阶项顺须传债伤仅势块汇抢会业极准温当绑经义万号补装里试该详赁资迹较农运过达电预划图团夺实对态畅构渗满涨种称维网闻与盖制认诱语误说轻远际齐价层厂虑撑数标枢样盘确码范线冲复谁课调谈质辆轮适销锋铺余导战拥担据机历独筛亲诺赖办选录错险头优压岭应击挤档营墙环缩纵总绩联购赛还键虽韩点扩断槛职旧萨踪转锁双题额碍稳证链关类严竞筹继触议赢释馈属续览护跃响驱摊权叠读变显验体让观";
+var SC_MAP = (function(){ var m={}; for(var i=0;i<SC_TC.length;i++) m[SC_TC[i]] = SC_SC[i]; return m; })();
+/* Taiwan usage → mainland usage. Applied before the character map, so the
+   left-hand side is written in traditional characters. */
+var SC_PHRASES = [
+  ["資料","数据"],["品質","质量"],["通路","渠道"],["行銷","营销"],["訊號","信号"],
+  ["頭期","首付"],["車款","车型"],["級距","细分市场"],["量能","销量"],["網路","网络"],
+  ["法人","企业"],["試算","测算"]
+];
+function toSC(v){
+  if(v == null) return v;
+  if(Object.prototype.toString.call(v) === "[object Array]") return v.map(toSC);
+  if(typeof v !== "string") return v;
+  var s = v, i;
+  for(i=0;i<SC_PHRASES.length;i++) s = s.split(SC_PHRASES[i][0]).join(SC_PHRASES[i][1]);
+  var out = "";
+  for(i=0;i<s.length;i++){ var ch = s.charAt(i); out += (SC_MAP[ch] || ch); }
+  return out;
+}
+/* Wrap a literal authored in zh-Hant that is not stored on a record. */
+function L(s){ return lang === "zh-Hans" ? toSC(s) : s; }
+
+function t(k){
+  var e = UI[k]; if(!e) return "";
+  if(e[lang] != null) return e[lang];
+  if(lang === "zh-Hans" && e["zh-Hant"] != null) return toSC(e["zh-Hant"]);
+  return e["zh-Hant"] || "";
+}
+function fld(o, base){
+  if(!o) return "";
+  var k = base + "_" + lang;
+  if(o[k] != null) return o[k];
+  var v = o[base];
+  if(v == null) return "";
+  return lang === "zh-Hans" ? toSC(v) : v;
+}
 function esc(x){ var d=document.createElement("div"); d.textContent = x==null?"":x; return d.innerHTML; }
 function fmtNum(n){ if(n==null||isNaN(n)) return "—"; return Math.round(n).toLocaleString("en-US"); }
 function srcLinks(arr){ return (arr||[]).map(function(s){ return "<a href='"+esc(s.url)+"' target='_blank' rel='noopener noreferrer'>"+esc(s.label)+"</a>"; }).join(" · "); }
@@ -1327,9 +1364,9 @@ function renderSnapshot(){
   if(!wrap) return;
   if(curPeriod === "all"){
     wrap.innerHTML = kpiHtml([
-      {k:t("snap_byd"), v:"146,930", s:"2026 年 1–8 月累計"+(lang==="pt"?" (jan-ago 2026)":"")},
-      {k:t("snap_rank"), v:"#4", s:"Fiat・Volkswagen・Chevrolet 之後"},
-      {k:t("snap_share"), v:"7.9%", s:"8 月單月已達 9.3%"},
+      {k:t("snap_byd"), v:"146,930", s:lang==="pt"?"Acumulado jan-ago 2026":lang==="en"?"Jan-Aug 2026 cumulative":L("2026 年 1–8 月累計")},
+      {k:t("snap_rank"), v:"#4", s:lang==="pt"?"atrás de Fiat, Volkswagen e Chevrolet":lang==="en"?"behind Fiat, VW and Chevrolet":L("Fiat・Volkswagen・Chevrolet 之後")},
+      {k:t("snap_share"), v:"7.9%", s:lang==="pt"?"9,3% no mês de agosto":lang==="en"?"9.3% in August alone":L("8 月單月已達 9.3%")},
       {k:t("snap_theme"), v:"—", s:fld(MONTHLY,"note")}
     ]);
     if(gap) gap.style.display = "none";
