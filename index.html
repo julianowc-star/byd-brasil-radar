@@ -1249,7 +1249,17 @@ var UI = {
    An explicit *_zh-Hans field on a record still wins over this conversion. */
 var SC_TC = "內佔兌別夾決沒見車並亞來兩屆東況爭狀長門則為紀約訂計負軌軍頁風個們剛員庫徑時納紐純紙級脅訊記針馬側動務區參啟國執將專帶張強從採條現產異終組統處術規設販這連頂備創單報場幾惡換殘減渦無發稅筆結絕給華著視註評買費貼軸週進開間隊階項順須傳債傷僅勢塊彙搶會業極準溫當綁經義萬號補裝裡試該詳賃資跡較農運過達電預劃圖團奪實對態暢構滲滿漲種稱維網聞與蓋製認誘語誤說輕遠際齊價層廠慮撐數標樞樣盤確碼範線衝複誰課調談質輛輪適銷鋒鋪餘導戰擁擔據機歷獨篩親諾賴辦選錄錯險頭優壓嶺應擊擠檔營牆環縮縱總績聯購賽還鍵雖韓點擴斷檻職舊薩蹤轉鎖雙題額礙穩證鏈關類嚴競籌繼觸議贏釋饋屬續覽護躍響驅攤權疊讀變顯驗體讓觀";
 var SC_SC = "内占兑别夹决没见车并亚来两届东况争状长门则为纪约订计负轨军页风个们刚员库径时纳纽纯纸级胁讯记针马侧动务区参启国执将专带张强从采条现产异终组统处术规设贩这连顶备创单报场几恶换残减涡无发税笔结绝给华着视注评买费贴轴周进开间队阶项顺须传债伤仅势块汇抢会业极准温当绑经义万号补装里试该详赁资迹较农运过达电预划图团夺实对态畅构渗满涨种称维网闻与盖制认诱语误说轻远际齐价层厂虑撑数标枢样盘确码范线冲复谁课调谈质辆轮适销锋铺余导战拥担据机历独筛亲诺赖办选录错险头优压岭应击挤档营墙环缩纵总绩联购赛还键虽韩点扩断槛职旧萨踪转锁双题额碍稳证链关类严竞筹继触议赢释馈属续览护跃响驱摊权叠读变显验体让观";
-var SC_MAP = (function(){ var m={}; for(var i=0;i<SC_TC.length;i++) m[SC_TC[i]] = SC_SC[i]; return m; })();
+/* The generator skips characters whose simplified form depends on context
+   (後/后, 於/于, 拚/拼). Every occurrence in this file takes the form below,
+   so they are added by hand. Japanese glyphs used by the ja interface
+   strings (売 実 戦 読 覧 値 録 頼 関) are deliberately left alone. */
+var SC_EXTRA = {"後":"后","於":"于","拚":"拼"};
+var SC_MAP = (function(){
+  var m={}, i;
+  for(i=0;i<SC_TC.length;i++) m[SC_TC.charAt(i)] = SC_SC.charAt(i);
+  for(i in SC_EXTRA) if(SC_EXTRA.hasOwnProperty(i)) m[i] = SC_EXTRA[i];
+  return m;
+})();
 /* Taiwan usage → mainland usage. Applied before the character map, so the
    left-hand side is written in traditional characters. */
 var SC_PHRASES = [
