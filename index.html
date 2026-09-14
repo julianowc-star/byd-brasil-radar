@@ -24,7 +24,10 @@ r.setAttribute("data-theme",t);})();</script>
    ========================================================================= */
 :root{
   /* BYD greys */
-  --ink:#252728; --ink-2:#515253; --muted:#7A7C7D; --faint:#999999;
+  /* byd.com uses #999999 for secondary text; on white that is 2.85:1, below
+     AA. These stay in the same neutral family but are dark enough to read:
+     muted 6.32:1 and faint 5.60:1 on white, 5.75 and 5.09 on the sunken grey. */
+  --ink:#252728; --ink-2:#515253; --muted:#5E6061; --faint:#66686A;
   --paper:#FFFFFF; --card:#FFFFFF; --sunken:#F4F4F4; --line:#DEDEDE; --line-2:#E9E9E9;
   --bar:#252728; --bar-ink:#FFFFFF;
   /* emphasis is tonal, not chromatic */
@@ -277,7 +280,9 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(
    Dark — byd.com's own register: charcoal ground, not black
    ========================================================================= */
 [data-theme="dark"]{
-  --ink:#F2F2F2; --ink-2:#C8C9CA; --muted:#8E9091; --faint:#77797A;
+  /* same correction in reverse: 5.70 and 5.23 on the card, 6.50 and 5.96 on
+     the page ground — the previous #77797A was only 3.43:1 on a card */
+  --ink:#F2F2F2; --ink-2:#C8C9CA; --muted:#9DA0A1; --faint:#96999A;
   --paper:#1A1C1D; --card:#252728; --sunken:#2E3031; --line:#3A3C3D; --line-2:#333536;
   --bar:#111314; --bar-ink:#FFFFFF;
   --accent:#FFFFFF; --accent-ink:#252728; --accent-soft:#33383A;
