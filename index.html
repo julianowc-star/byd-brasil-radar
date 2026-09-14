@@ -133,7 +133,8 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding-top:14px;font-fa
 .kpi-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-bottom:16px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:13px 15px}
 .kpi .k{font-family:'Archivo',sans-serif;font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
-.kpi .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:500;color:var(--teal);line-height:1.1;display:block}
+.kpi .v{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:500;color:var(--teal);line-height:1.15;display:block}
+.kpi .v.sm{font-family:'Archivo','Microsoft JhengHei','PingFang TC',sans-serif;font-size:17px;font-weight:700;letter-spacing:.3px}
 .kpi .s{font-size:11.5px;color:var(--muted);display:block;margin-top:4px;line-height:1.45}
 /* Tables */
 .dtable{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:14px;background:var(--card)}
@@ -1217,6 +1218,7 @@ var UI = {
   snap_market:{"zh-Hant":"市場動態","zh-Hans":"市场动态",en:"Market",pt:"Mercado",ja:"市場動向"},
   derived_lbl:{"zh-Hant":"本站推算","zh-Hans":"本站推算",en:"derived here",pt:"estimativa própria",ja:"当サイト推計"},
   no_data:{"zh-Hant":"尚未公布","zh-Hans":"尚未公布",en:"not yet released",pt:"ainda não divulgado",ja:"未公表"},
+  month_in_progress:{"zh-Hant":"月份進行中，待 Fenabrave 結算","zh-Hans":"月份进行中，待 Fenabrave 结算",en:"month still running; awaiting Fenabrave",pt:"mês em andamento; aguardando a Fenabrave",ja:"進行中・Fenabrave の集計待ち"},
   period_all:{"zh-Hant":"2026 全年累計","zh-Hans":"2026 全年累计",en:"2026 year to date",pt:"Acumulado 2026",ja:"2026年累計"},
   monthly_title:{"zh-Hant":"BYD 逐月上牌量","zh-Hans":"BYD 逐月上牌量",en:"BYD monthly registrations",pt:"Emplacamentos mensais da BYD",ja:"BYD 月次登録台数"},
   /* byd subtabs */
@@ -1394,13 +1396,13 @@ function renderSnapshot(){
   }
   var d = MONTHLY.months[curPeriod];
   if(!d){ wrap.innerHTML = ""; if(gap) gap.style.display="none"; return; }
-  var bydVal = d.byd == null ? t("no_data") : fmtNum(d.byd);
-  var bydSub = d.byd == null ? fld(d,"market").slice(0,60) : (d.derived ? t("derived_lbl") : "");
+  var pending = d.byd == null;
   wrap.innerHTML = kpiHtml([
-    {k:t("snap_byd"),   v:bydVal, s:bydSub},
-    {k:t("snap_rank"),  v:d.rank ? ("#"+d.rank) : "—", s:d.rank ? "" : t("no_data")},
-    {k:t("snap_share"), v:d.share ? (d.share+"%") : "—", s:d.share ? "" : t("no_data")},
-    {k:t("snap_theme"), v:"", s:fld(d,"theme")}
+    {k:t("snap_byd"),   v:pending ? t("no_data") : fmtNum(d.byd), vsmall:pending,
+     s:pending ? t("month_in_progress") : (d.derived ? t("derived_lbl") : "")},
+    {k:t("snap_rank"),  v:d.rank  ? ("#"+d.rank)   : "—", s:d.rank  ? "" : t("no_data")},
+    {k:t("snap_share"), v:d.share ? (d.share+"%")  : "—", s:d.share ? "" : t("no_data")},
+    {k:t("snap_theme"), v:fld(d,"theme"), vsmall:true}
   ]);
   if(gap){
     gap.style.display = "block";
@@ -1539,7 +1541,10 @@ function buildSubnav(containerId, subs, cur, setter){
 }
 function kpiHtml(list){
   return list.map(function(x){
-    return "<div class='kpi'><span class='k'>"+esc(fld(x,"k"))+"</span><span class='v'>"+esc(x.v)+"</span><span class='s'>"+esc(fld(x,"s"))+"</span></div>";
+    var sub = fld(x,"s");
+    return "<div class='kpi'><span class='k'>"+esc(fld(x,"k"))+"</span>"+
+      "<span class='v"+(x.vsmall?" sm":"")+"'>"+esc(fld(x,"v"))+"</span>"+
+      (sub?"<span class='s'>"+esc(sub)+"</span>":"")+"</div>";
   }).join("");
 }
 
