@@ -1315,6 +1315,10 @@ function setPeriod(k){
   if(!PERIODS.some(function(p){return p.k===k;})) return;
   curPeriod = k;
   try{ localStorage.setItem("bydPeriod", k); }catch(e){}
+  /* keep the dropdown in sync when the period is set from elsewhere
+     (the monthly chart's bars call setPeriod directly) */
+  var sel = document.getElementById("archiveSel");
+  if(sel && sel.value !== k) sel.value = k;
   buildHeat(); buildFilters(); buildCards(); renderSnapshot();
 }
 function renderSnapshot(){
