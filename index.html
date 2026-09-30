@@ -322,9 +322,9 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(
     </span>
   </div>
   <div class="date-block">
-    <span class="report-date">2026-09-13</span>
+    <span class="report-date" id="reportDate">2026-09-30</span>
     <span class="date-window" id="windowLbl">資料窗口：2026 年 1–8 月累計</span>
-    <span class="date-window">updated 2026-09-13 (UTC-3)</span>
+    <span class="date-window" id="updatedLbl">updated 2026-09-30 (UTC-3)</span>
   </div>
   <div class="date-nav">
     <button class="theme-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark / light" title="Dark / Light"><span id="themeIcon">☾</span></button>
@@ -1659,6 +1659,10 @@ function applyStaticText(){
   document.getElementById("glanceHint").textContent=" "+t("glanceHint");
   document.getElementById("archiveLabel").textContent=t("archive");
   var ph=document.getElementById("periodHint"); if(ph) ph.textContent=t("period_hint");
+  /* the masthead date lives in META so a data refresh cannot leave a stale
+     date on screen — the static markup is only a pre-script fallback */
+  var rd=document.getElementById("reportDate"); if(rd) rd.textContent=META.report_date;
+  var up=document.getElementById("updatedLbl"); if(up) up.textContent="updated "+META.report_date+" (UTC-3)";
   document.getElementById("empty").textContent=t("empty");
   document.getElementById("windowLbl").textContent=t("window");
   document.getElementById("foot").innerHTML = "BYD BRASIL RADAR · "+esc(META.report_date)+" · "+esc(fld(META,"base_period"))+"<br>"+esc(t("foot_note"));
