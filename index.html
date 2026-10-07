@@ -613,6 +613,26 @@ var REGIONS = {
 
 /* ---------- News items ---------- */
 var NEWS = [
+{sector:"top10",region:"natl",company:"Fenabrave",location:"Brasil",impact:"Signal",as_of:"2026-09",
+ headline:"1–9 月累計品牌榜：BYD 169,135 台居第 4，約為 Chevrolet 的四分之三",
+ headline_en:"Jan-Sep cumulative brand table: BYD fourth on 169,135 units, about three quarters of Chevrolet",
+ headline_pt:"Acumulado jan-set por marca: BYD em 4º com 169.135 unidades, cerca de três quartos do volume da Chevrolet",
+ key_points:["Fiat 421,999／VW 350,645／Chevrolet 224,948／BYD 169,135／Hyundai 141,824／Toyota 122,804","Fiat 與 VW 的累計差距達 71,354 台","BYD 的累計市佔約 7.9%（以反推的約 213 萬台輕型車基數計算）","第 7 至 10 名的累計值本站未取得"],
+ key_points_pt:["Fiat 421.999, VW 350.645, Chevrolet 224.948, BYD 169.135, Hyundai 141.824 e Toyota 122.804","A diferença acumulada entre Fiat e VW chega a 71.354 unidades","A participação acumulada da BYD é de cerca de 7,9%, sobre uma base estimada de 2,13 milhões de leves","Da 7ª à 10ª posição o acumulado não foi apurado"],
+ insight:"累計值把九月的回檔稀釋掉了：單月 BYD 市佔 8.2%，累計仍是 7.9%，看起來反而在上升。這正是本站把主要競品分頁改用單月基準的原因——兩個數字都對，但只有單月看得出轉折。與 Chevrolet 的累計差距 55,813 台，以 BYD 目前月均逾 2 萬台推算，若九月的回檔只是單月現象，2027 年第一季有機會追平。",
+ insight_pt:"O acumulado dilui o recuo de setembro: no mês a BYD fez 8,2%, no acumulado segue em 7,9%, o que dá a impressão de alta. É exatamente por isso que a aba de concorrentes passou a usar o mês fechado — os dois números estão certos, mas só o mensal mostra a inflexão. A distância acumulada para a Chevrolet é de 55.813 unidades; nos volumes atuais da BYD, acima de 20 mil por mês, se o recuo de setembro for pontual a diferença pode ser zerada no 1º trimestre de 2027.",
+ source_name:"O Tempo / Fenabrave",source_url:"https://www.otempo.com.br/autotempo/2026/10/6/fiat-supera-volkswagen-e-e-a-marca-que-mais-vendeu-carros-no-brasil-em-setembro"},
+
+{sector:"policy",region:"natl",company:"ABVE",location:"Brasil",impact:"Opportunity",as_of:"2026-09",
+ headline:"巴西電動化車款累計突破 100 萬台，9 月單月市佔 23.1%",
+ headline_en:"Brazil passes one million electrified vehicles, with a 23.1% share in September",
+ headline_pt:"Brasil ultrapassa 1 milhão de eletrificados, com 23,1% de participação em setembro",
+ key_points:["自 2012 年起算累計 1,003,310 台，於 9 月突破百萬","9 月單月 53,126 台；若計入 MHEV 則為 61,995 台，佔輕型車市場 23.1%","1–9 月累計 381,609 台，已超過 ABVE 全年 45 萬台預估的 85%","9 月 BEV 22,246 台（佔電動化 41.9%）、PHEV 20,202 台（38.0%）"],
+ key_points_pt:["1.003.310 unidades desde 2012, marca superada em setembro","53.126 unidades no mês; 61.995 incluindo MHEV, equivalente a 23,1% do mercado de leves","381.609 no acumulado jan-set, já acima de 85% da projeção anual de 450 mil da ABVE","Em setembro: 22.246 BEV (41,9% dos eletrificados) e 20.202 PHEV (38,0%)"],
+ insight:"BEV 與 PHEV 的差距從上半年的 14,226 台縮到九月的 2,044 台。PHEV 正在追上，而 BYD 的 DM-i 線正好吃這一塊——九月品牌市佔雖然回落，產品結構卻站在趨勢這一邊。百萬台這個門檻的意義在於充電與售後的規模經濟開始成立。",
+ insight_pt:"A distância entre BEV e PHEV caiu de 14.226 unidades no primeiro semestre para 2.044 em setembro. Os plug-in estão encostando, e é justamente aí que atua a linha DM-i da BYD: a participação da marca recuou no mês, mas a estrutura de produto está do lado da tendência. O milhão importa porque é a partir dele que a escala de recarga e pós-venda começa a fechar conta.",
+ source_name:"ABVE / Canal VE",source_url:"https://canalve.com.br/setembro-teve-marca-historica-53-mil-novos-ves/"},
+
 {sector:"local",region:"ne",company:"BYD Camaçari",location:"Camaçari, BA",impact:"Threat",as_of:"2026-10",confidence:"low",
  headline:"建廠期勞動爭議未結：已付 R$ 4,000 萬和解，MPT 另求償 R$ 2.57 億的訴訟仍在進行",
  headline_en:"The construction-phase labour case is unresolved: R$40m already settled, while a separate MPT suit seeking R$257m remains live",
@@ -981,8 +1001,8 @@ var BYDDATA = {
   kpis:[
     {k:"9 月單月",k_en:"September units",k_pt:"Mês de setembro",v:"21,647",s:"市佔 8.2%，自 8 月的 9.4% 回落 1.2 個百分點",s_pt:"8,2% de participação, 1,2 ponto abaixo dos 9,4% de agosto"},
     {k:"8 月單月（前高）",k_en:"August (previous peak)",k_pt:"Agosto (pico anterior)",v:"24,467",s:"進入巴西以來最高月份，市佔 9.4%",s_pt:"melhor mês da marca no país, com 9,4% de participação"},
-    {k:"1–9 月累計",k_en:"Jan-Sep units",k_pt:"Acumulado jan-set",v:"~168,600",s:"1–8 月 146,930 加計 9 月，本站計算",s_pt:"146.930 de jan a ago mais setembro; cálculo próprio"},
-    {k:"2026 目標",k_en:"2026 target",k_pt:"Meta 2026",v:"~180,000",s:"公司目標；1–9 月已達 93.7%，第四季僅需月均約 3,800 台即可達標——以近月逾 2 萬台的水準，應會大幅超越",s_pt:"meta da empresa; 93,7% atingidos de jan a set, bastando cerca de 3.800/mês no 4º trimestre — com os volumes recentes acima de 20 mil, deve ser superada com folga"}
+    {k:"1–9 月累計",k_en:"Jan-Sep units",k_pt:"Acumulado jan-set",v:"169,135",s:"來源值；品牌排名第 4，約為 Chevrolet 的 75%",s_pt:"número de fonte; 4º lugar entre as marcas, cerca de 75% do volume da Chevrolet"},
+    {k:"2026 目標",k_en:"2026 target",k_pt:"Meta 2026",v:"~180,000",s:"公司目標；1–9 月 169,135 台已達 94%，第四季僅需月均約 3,600 台——以近月逾 2 萬台的水準，應會大幅超越",s_pt:"meta da empresa; as 169.135 unidades de jan a set equivalem a 94%, bastando cerca de 3.600/mês no 4º trimestre — com os volumes recentes acima de 20 mil, deve ser superada com folga"}
   ],
   model_note:"BYD 在巴西的車型戰情。各列的統計期間不同，因此以表格而非單一圖表呈現——把不同期間的數字疊進同一張圖會產生誤導。",
   model_note_pt:"Situação por modelo da BYD no Brasil. Cada linha tem um período de apuração diferente, por isso os dados aparecem em tabela e não em um único gráfico — juntar períodos distintos na mesma figura induziria a erro.",
@@ -1031,29 +1051,28 @@ var MARKET = {
   total_note:"巴西輕型車市的整體量體與電動化速度，是 BYD 在地擴張的分母。",
   total_note_pt:"O tamanho do mercado brasileiro de veículos leves e a velocidade da eletrificação formam o denominador da expansão local da BYD.",
   kpis:[
-    {k:"1–8 月輕型車基數",k_en:"Jan-Aug light-vehicle base",k_pt:"Base de leves jan-ago",v:"~1,860,000",s:"由品牌市佔反推（本站計算），非官方公布值",s_pt:"estimado a partir das participações de mercado (cálculo próprio), não é número oficial"},
-    {k:"1–8 月乘用車",k_en:"Jan-Aug passenger cars",k_pt:"Automóveis jan-ago",v:"1,511,916",s:"Fenabrave「automóveis」口徑，不含輕型商用車",s_pt:"critério \"automóveis\" da Fenabrave, sem comerciais leves"},
-    {k:"8 月上牌年增",k_en:"August YoY",k_pt:"Emplacamentos ago (a/a)",v:"+16.87%",s:"整體上牌量",s_pt:"total de emplacamentos"},
-    {k:"上半年電動化",k_en:"H1 electrified",k_pt:"Eletrificados 1º sem.",v:"215,023",s:"年增 125%，整體車市僅 +20%",s_pt:"alta de 125%, contra apenas 20% do mercado total"},
-    {k:"7 月電動化市佔",k_en:"July electrified share",k_pt:"Part. eletrificados jul",v:"21.0%",s:"6 月為 18.3%",s_pt:"em junho foi de 18,3%"},
-    {k:"2026 電動化預估",k_en:"2026 electrified forecast",k_pt:"Projeção 2026",v:"450,000+",s:"ABVE 預估",s_pt:"projeção da ABVE"}
+    {k:"9 月輕型車",k_en:"September light vehicles",k_pt:"Leves em setembro",v:"265,275",s:"年增 14.5%，但較 8 月減 12.92%",s_pt:"alta de 14,5% no ano e queda de 12,92% ante agosto"},
+    {k:"1–9 月輕型車基數",k_en:"Jan-Sep light-vehicle base",k_pt:"Base de leves jan-set",v:"~2,130,000",s:"由 Fiat 的 421,999 台與約 19.8% 市佔反推（本站計算）",s_pt:"estimado a partir das 421.999 unidades da Fiat e de cerca de 19,8% de participação (cálculo próprio)"},
+    {k:"9 月電動化市佔",k_en:"September electrified share",k_pt:"Part. eletrificados set",v:"23.1%",s:"含 MHEV 共 61,995 台；不含則為 53,126 台",s_pt:"61.995 unidades incluindo MHEV; 53.126 sem"},
+    {k:"1–9 月電動化",k_en:"Jan-Sep electrified",k_pt:"Eletrificados jan-set",v:"381,609",s:"ABVE；已超越全年 45 萬台預估的 85%",s_pt:"ABVE; já supera 85% da projeção anual de 450 mil"},
+    {k:"電動化歷史累計",k_en:"Electrified, all time",k_pt:"Eletrificados, série histórica",v:"1,003,310",s:"2012 年起算，9 月突破百萬台",s_pt:"desde 2012; a marca de 1 milhão foi superada em setembro"},
+    {k:"2026 電動化預估",k_en:"2026 electrified forecast",k_pt:"Projeção 2026",v:"450,000+",s:"ABVE 預估，依目前進度應會超越",s_pt:"projeção da ABVE; no ritmo atual deve ser superada"}
   ],
-  caveat:"口徑提醒：主要競品分頁自 2026 年 9 月起改用單月定稿數據，前十名合計 213,367 台，占當月總量 265,275 台的 80.4%，其餘 19.6% 為榜外品牌——這組數字彼此自洽，不再有先前年度累計基準下「前十加總大於乘用車總量」的矛盾（該矛盾來自 Fenabrave 的 automóveis 口徑不含輕型商用車，而品牌榜含）。下方年度累計欄位仍為 1–8 月基礎，與單月表不可直接相加。",
-  caveat_pt:"Atenção ao critério: a aba de concorrentes passou a usar, a partir de setembro de 2026, o mês fechado. As dez maiores somam 213.367 unidades, 80,4% das 265.275 do mês, restando 19,6% para as demais marcas — números coerentes entre si, sem a contradição anterior, em que a soma do top 10 superava o total de automóveis (ela vinha do critério da Fenabrave, cujo item automóveis exclui os comerciais leves que o ranking de marcas inclui). Os campos de acumulado abaixo seguem na base jan-ago e não podem ser somados à tabela mensal.",
+  caveat:"口徑提醒：主要競品分頁自 2026 年 9 月起改用單月定稿數據，前十名合計 213,367 台，占當月總量 265,275 台的 80.4%，其餘 19.6% 為榜外品牌——這組數字彼此自洽，不再有先前年度累計基準下「前十加總大於乘用車總量」的矛盾（該矛盾來自 Fenabrave 的 automóveis 口徑不含輕型商用車，而品牌榜含）。表格另列 1–9 月累計（來源值）：Fiat 421,999、VW 350,645、Chevrolet 224,948、BYD 169,135、Hyundai 141,824、Toyota 122,804；第 7 至 10 名的累計值本站未取得，以「—」表示。累計欄與單月欄是兩個不同期間，不可相加。電動化技術別中的 HEV/HEV Flex 為 53,126 台減去 BEV 與 PHEV 後的餘數，屬本站計算。",
+  caveat_pt:"Atenção ao critério: a aba de concorrentes passou a usar, a partir de setembro de 2026, o mês fechado. As dez maiores somam 213.367 unidades, 80,4% das 265.275 do mês, restando 19,6% para as demais marcas — números coerentes entre si, sem a contradição anterior, em que a soma do top 10 superava o total de automóveis (ela vinha do critério da Fenabrave, cujo item automóveis exclui os comerciais leves que o ranking de marcas inclui). A tabela traz também o acumulado jan-set (números de fonte): Fiat 421.999, VW 350.645, Chevrolet 224.948, BYD 169.135, Hyundai 141.824 e Toyota 122.804; da 7ª à 10ª posição o acumulado não foi apurado e aparece como travessão. A coluna do acumulado e a do mês são períodos distintos e não se somam. No mix de eletrificados, a linha HEV/HEV Flex é o resto de 53.126 menos BEV e PHEV, portanto cálculo próprio.",
   total_sources:[
     {label:"Carrolens (Fenabrave)",url:"https://carrolens.com.br/rankings/2026"},
     {label:"AutoRanking",url:"https://autoranking.com.br/emplacamentos-veiculos-agosto-2026-fenabrave/"},
     {label:"ABVE",url:"https://abve.org.br/eletrificados-conquistam-21-de-participacao-de-mercado-em-julho-e-devem-passar-de-450-mil-este-ano/"}
   ],
-  elec_note:"2026 年上半年電動化車款的技術別構成。PHEV 佔逾三分之一，顯示巴西消費者的續航焦慮尚未消除。",
-  elec_note_pt:"Composição dos eletrificados por tecnologia no 1º semestre de 2026. Os PHEV passam de um terço do total, sinal de que a ansiedade de autonomia ainda não foi superada pelo consumidor brasileiro.",
-  elec_metric:"2026 年 1–6 月累計 215,023 台 · 來源 ABVE",
-  elec_metric_pt:"215.023 unidades acumuladas de jan a jun de 2026 · fonte ABVE",
+  elec_note:"2026 年 9 月電動化車款的技術別構成（不含 MHEV）。BEV 與 PHEV 的差距已縮到 2,044 台——上半年還是 14,226 台，PHEV 正在追上。",
+  elec_note_pt:"Composição dos eletrificados por tecnologia em setembro de 2026, sem MHEV. A diferença entre BEV e PHEV caiu para 2.044 unidades, ante 14.226 no primeiro semestre: os plug-in estão encostando.",
+  elec_metric:"2026 年 9 月 53,126 台（含 MHEV 則為 61,995 台，佔輕型車市場 23.1%）· 來源 ABVE",
+  elec_metric_pt:"53.126 unidades em setembro de 2026 (61.995 incluindo MHEV, 23,1% do mercado de leves) · fonte ABVE",
   elec:[
-    {name:"BEV 純電",name_en:"BEV",name_pt:"BEV 100% elétrico",units:90626,share:42.2},
-    {name:"PHEV 插電混動",name_en:"PHEV",name_pt:"PHEV híbrido plug-in",units:76400,share:35.5},
-    {name:"HEV Flex 乙醇混動",name_en:"HEV Flex",name_pt:"HEV Flex",units:24078,share:11.2},
-    {name:"HEV 一般混動",name_en:"HEV",name_pt:"HEV híbrido",units:23919,share:11.1}
+    {name:"BEV 純電",name_en:"BEV",name_pt:"BEV 100% elétrico",units:22246,share:41.9},
+    {name:"PHEV 插電混動",name_en:"PHEV",name_pt:"PHEV híbrido plug-in",units:20202,share:38.0},
+    {name:"HEV／HEV Flex 混動",name_en:"HEV / HEV Flex",name_pt:"HEV / HEV Flex",units:10678,share:20.1}
   ],
   elec_sources:[
     {label:"ABVE",url:"https://abve.org.br/eletrificados-conquistam-21-de-participacao-de-mercado-em-julho-e-devem-passar-de-450-mil-este-ano/"},
@@ -1076,22 +1095,22 @@ var BRANDS = {
     {label:"Fenabrave 官方",url:"https://www.fenabrave.org.br/portalv2/Conteudo/Emplacamentos"}
   ],
   rows:[
-    {rank:1,name:"Fiat",group:"Stellantis",origin:"義大利／巴西在地生產",origin_pt:"Itália / produção local no Brasil",units:52455,share:19.8,
+    {rank:1,name:"Fiat",group:"Stellantis",origin:"義大利／巴西在地生產",origin_pt:"Itália / produção local no Brasil",units:52455,share:19.8,cum:421999,
      facts:["9 月 52,455 台，市佔 19.8%，領先幅度擴大","1–9 月累計約 420,900 台，較第二名 VW 多約 7 萬台","Strada 累計逾 123,000 台，續居單一車型冠軍","小型皮卡級距的量能來源，BYD 無對應車型"],
      facts_pt:["52.455 unidades em setembro, 19,8% de participação, ampliando a liderança","Cerca de 420.900 unidades no acumulado jan-set, aproximadamente 70 mil à frente da VW","A Strada passa de 123.000 no acumulado e segue como modelo mais vendido","O volume vem da picape compacta, segmento sem concorrente da BYD"]},
-    {rank:2,name:"Volkswagen",group:"VW Group",origin:"德國／巴西在地生產",origin_pt:"Alemanha / produção local no Brasil",units:42372,share:16.0,
+    {rank:2,name:"Volkswagen",group:"VW Group",origin:"德國／巴西在地生產",origin_pt:"Alemanha / produção local no Brasil",units:42372,share:16.0,cum:350645,
      facts:["9 月 42,372 台，市佔 16.0%","Polo 以 11,095 台居單月車型冠軍，累計逾 83,000 台","九月重新奪回零售通路第一","在巴西擁有數十年的在地產能與通路縱深"],
      facts_pt:["42.372 unidades em setembro, 16,0% de participação","O Polo lidera o mês com 11.095 unidades e passa de 83.000 no acumulado","Retomou a liderança no varejo em setembro","Décadas de capacidade fabril e profundidade de rede no Brasil"]},
-    {rank:3,name:"Chevrolet",group:"General Motors",origin:"美國／巴西在地生產",origin_pt:"EUA / produção local no Brasil",units:27527,share:10.4,
+    {rank:3,name:"Chevrolet",group:"General Motors",origin:"美國／巴西在地生產",origin_pt:"EUA / produção local no Brasil",units:27527,share:10.4,cum:224948,
      facts:["9 月 27,527 台，市佔 10.4%","與 BYD 的差距在九月重新拉開到 5,880 台","八月時 BYD 曾逼近至 9.4% 對 10.7%，九月的回檔讓這場追逐延後"],
      facts_pt:["27.527 unidades em setembro, 10,4% de participação","A distância para a BYD voltou a abrir em setembro, para 5.880 unidades","Em agosto a BYD havia encostado (9,4% contra 10,7%); o recuo de setembro adiou essa disputa"]},
-    {rank:4,name:"BYD",group:"BYD",origin:"中國／巴西在地生產（Camaçari, BA）",origin_pt:"China / produção local no Brasil (Camaçari, BA)",units:21647,share:8.2,me:true,
-     facts:["9 月 21,647 台，市佔 8.2%——自八月的 9.4% 回落 1.2 個百分點，為本站追蹤以來首次下滑","台數較八月減少 1.2%；BYD 自報為 22,209 台、市佔 8.5%（含直銷與零售通路，口徑不同）","Dolphin Mini 以 9,385 台登上全國第三，為純電車首度進入前三","King 以 1,666 台續居中型房車冠軍，Toyota Corolla 僅 475 台","直銷通路成長近 500%，但零售通路排名掉到第三","1–8 月累計 146,930 台；加計九月約 168,600 台（本站計算）"],
-     facts_pt:["21.647 unidades em setembro, 8,2% de participação — queda de 1,2 ponto ante os 9,4% de agosto, a primeira retração desde que este painel acompanha","Volume 1,2% menor que agosto; a própria BYD informa 22.209 unidades e 8,5%, somando canais direto e varejo (critério diferente)","O Dolphin Mini chegou ao 3º lugar nacional com 9.385 unidades, o primeiro 100% elétrico no top 3","O King segue líder dos sedãs médios com 1.666 unidades, contra 475 do Toyota Corolla","As vendas diretas cresceram quase 500%, mas no varejo a marca caiu para 3º","146.930 unidades de jan a ago; somando setembro, cerca de 168.600 (cálculo próprio)"]},
-    {rank:5,name:"Hyundai",group:"Hyundai",origin:"韓國／巴西在地生產",origin_pt:"Coreia do Sul / produção local no Brasil",units:14640,share:5.5,
+    {rank:4,name:"BYD",group:"BYD",origin:"中國／巴西在地生產（Camaçari, BA）",origin_pt:"China / produção local no Brasil (Camaçari, BA)",units:21647,share:8.2,cum:169135,me:true,
+     facts:["9 月 21,647 台，市佔 8.2%——自八月的 9.4% 回落 1.2 個百分點，為本站追蹤以來首次下滑","台數較八月減少 1.2%；BYD 自報為 22,209 台、市佔 8.5%（含直銷與零售通路，口徑不同）","Dolphin Mini 以 9,385 台登上全國第三，為純電車首度進入前三","King 以 1,666 台續居中型房車冠軍，Toyota Corolla 僅 475 台","直銷通路成長近 500%，但零售通路排名掉到第三","1–9 月累計 169,135 台（來源值，取代先前由差額推算的 ~168,600）"],
+     facts_pt:["21.647 unidades em setembro, 8,2% de participação — queda de 1,2 ponto ante os 9,4% de agosto, a primeira retração desde que este painel acompanha","Volume 1,2% menor que agosto; a própria BYD informa 22.209 unidades e 8,5%, somando canais direto e varejo (critério diferente)","O Dolphin Mini chegou ao 3º lugar nacional com 9.385 unidades, o primeiro 100% elétrico no top 3","O King segue líder dos sedãs médios com 1.666 unidades, contra 475 do Toyota Corolla","As vendas diretas cresceram quase 500%, mas no varejo a marca caiu para 3º","169.135 unidades no acumulado jan-set (número de fonte, substituindo a estimativa de ~168.600 obtida por diferença)"]},
+    {rank:5,name:"Hyundai",group:"Hyundai",origin:"韓國／巴西在地生產",origin_pt:"Coreia do Sul / produção local no Brasil",units:14640,share:5.5,cum:141824,
      facts:["9 月 14,640 台，市佔約 5.5%（本站以月總量 265,275 台換算）","Creta 的零售冠軍地位於 2026 上半年被 BYD Dolphin Mini 取代","九月以 30% 低頭期、60 期長分期的條件防守"],
      facts_pt:["14.640 unidades em setembro, cerca de 5,5% (calculado sobre o total de 265.275 do mês)","O Creta perdeu a liderança do varejo para o BYD Dolphin Mini no 1º semestre","Defendeu-se em setembro com entrada de 30% e prazo de 60 meses"]},
-    {rank:6,name:"Toyota",group:"Toyota",origin:"日本／巴西在地生產",origin_pt:"Japão / produção local no Brasil",units:13992,share:5.3,
+    {rank:6,name:"Toyota",group:"Toyota",origin:"日本／巴西在地生產",origin_pt:"Japão / produção local no Brasil",units:13992,share:5.3,cum:122804,
      facts:["9 月 13,992 台，市佔約 5.3%（本站換算）","HEV Flex（乙醇混動）路線的主要推動者之一","Corolla 九月僅 475 台，遠落後 BYD King 的 1,666 台"],
      facts_pt:["13.992 unidades em setembro, cerca de 5,3% (cálculo próprio)","Uma das principais impulsionadoras da rota HEV Flex (híbrido a etanol)","O Corolla fez apenas 475 unidades em setembro, bem atrás das 1.666 do BYD King"]},
     {rank:7,name:"Renault",group:"Renault",origin:"法國／巴西在地生產",origin_pt:"França / produção local no Brasil",units:11725,share:4.4,
@@ -1491,6 +1510,7 @@ var UI = {
   tbl_tech:{"zh-Hant":"技術別","zh-Hans":"技术别",en:"Technology",pt:"Tecnologia",ja:"技術区分"},
   tbl_category:{"zh-Hant":"類別","zh-Hans":"类别",en:"Category",pt:"Categoria",ja:"区分"},
   tbl_total:{"zh-Hant":"合計","zh-Hans":"合计",en:"Total",pt:"Total",ja:"合計"},
+  tbl_cum:{"zh-Hant":"1–9 月累計","zh-Hans":"1–9 月累计",en:"Jan-Sep",pt:"Acum. jan-set",ja:"1–9月累計"},
   dq_lbl:{"zh-Hant":"資料品質","zh-Hans":"数据质量",en:"Data quality",pt:"Qualidade do dado",ja:"データ品質"},
   caveat_lbl:{"zh-Hant":"口徑提醒","zh-Hans":"口径提醒",en:"Definition caveat",pt:"Atenção ao critério",ja:"定義に関する注意"},
   t_threat:{"zh-Hant":"威脅","zh-Hans":"威胁",en:"Threat",pt:"Ameaça",ja:"脅威"},
@@ -1902,11 +1922,12 @@ function renderTop10(){
   document.getElementById("topTitle").textContent=t("tab_top10");
   document.getElementById("topNote").textContent=fld(b,"note");
   document.getElementById("topMeta").textContent=fld(b,"period")+" · "+t("dq_lbl")+": "+fld(b,"data_quality");
-  var h="<tr><th>"+esc(t("tbl_rank"))+"</th><th>"+esc(t("tbl_brand"))+"</th><th style='text-align:right'>"+esc(t("tbl_units"))+"</th><th style='text-align:right'>"+esc(t("tbl_share"))+"</th></tr>";
+  var h="<tr><th>"+esc(t("tbl_rank"))+"</th><th>"+esc(t("tbl_brand"))+"</th><th style='text-align:right'>"+esc(t("tbl_units"))+"</th><th style='text-align:right'>"+esc(t("tbl_share"))+"</th><th style='text-align:right'>"+esc(t("tbl_cum"))+"</th></tr>";
   b.rows.forEach(function(r,i){
     h+="<tr class='pick"+(topSel===i?" sel":"")+(r.me?" me":"")+"' onclick='selectBrand("+i+")'>"+
       "<td class='num'>"+r.rank+"</td><td>"+esc(r.name)+(r.me?" ◆":(r.cn?" ·CN":""))+"</td>"+
-      "<td class='num'>"+fmtNum(r.units)+"</td><td class='num'>"+r.share.toFixed(1)+"%</td></tr>";
+      "<td class='num'>"+fmtNum(r.units)+"</td><td class='num'>"+r.share.toFixed(1)+"%</td>"+
+      "<td class='num'>"+(r.cum==null?"—":fmtNum(r.cum))+"</td></tr>";
   });
   document.getElementById("topTable").innerHTML=h;
   if(topSel==null||topSel>=b.rows.length) topSel=0;
