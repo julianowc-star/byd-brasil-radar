@@ -2389,21 +2389,31 @@ function renderPromo(){
    diagrams rather than photographs: press images are copyrighted and the
    Artifact host blocks external image loads, so a hotlinked photo would be
    both a rights problem and a broken image. */
-var BODY_PATH = {
-  hatch: "M16,58 L16,47 Q16,42 24,40 L52,38 Q62,21 84,19 L112,19 Q132,21 146,39 L178,43 Q186,45 186,52 L186,58 Z",
-  suv:   "M14,57 L14,41 Q14,36 22,34 L48,32 Q58,14 82,12 L126,12 Q148,15 160,33 L180,37 Q190,39 190,48 L190,57 Z",
-  coupe: "M16,58 L16,45 Q16,40 24,38 L50,36 Q64,17 90,15 L114,15 Q144,22 166,42 L182,45 Q188,47 188,53 L188,58 Z",
-  sedan: "M14,58 L14,47 Q14,42 22,40 L48,38 Q60,21 84,19 L110,19 Q128,21 138,38 L182,42 Q190,44 190,52 L190,58 Z",
-  pickup:"M12,57 L12,41 Q12,36 20,34 L44,32 Q54,15 76,13 L104,13 Q114,15 118,33 L118,36 L188,36 L188,57 Z",
-  van:   "M14,57 L14,28 Q14,20 24,18 L62,14 Q72,12 84,12 L168,12 Q184,14 186,28 L186,57 Z"
+var BODY_ART = {
+  suv:{   body:"M12,62 L12,40 Q12,34 20,33 L50,33 L64,14 L132,14 L150,33 L182,36 Q190,38 190,46 L190,62 Z",
+          glass:"M55,31 L67,17 L96,17 L96,31 Z M100,17 L128,17 L142,31 L100,31 Z", fw:52, rw:150 },
+  hatch:{ body:"M14,62 L14,44 Q14,39 22,38 L52,37 L66,22 L112,22 L140,38 L178,41 Q186,43 186,50 L186,62 Z",
+          glass:"M57,36 L69,24 L94,24 L94,36 Z M98,24 L110,24 L132,36 L98,36 Z", fw:54, rw:148 },
+  coupe:{ body:"M14,62 L14,45 Q14,40 22,39 L50,38 L70,20 L104,20 L160,40 L182,43 Q188,45 188,51 L188,62 Z",
+          glass:"M55,37 L73,22 L98,22 L98,37 Z M102,22 L112,22 L146,37 L102,37 Z", fw:52, rw:152 },
+  sedan:{ body:"M12,62 L12,45 Q12,40 20,39 L48,38 L64,22 L108,22 L126,38 L184,41 Q190,43 190,51 L190,62 Z",
+          glass:"M53,37 L67,24 L94,24 L94,37 Z M98,24 L106,24 L120,37 L98,37 Z", fw:50, rw:152 },
+  pickup:{body:"M10,62 L10,42 Q10,36 18,35 L44,34 L58,15 L98,15 L112,34 L112,40 L186,40 L186,62 Z",
+          glass:"M51,33 L61,17 L84,17 L84,33 Z M88,17 L96,17 L106,33 L88,33 Z", fw:48, rw:152 },
+  van:{   body:"M14,62 L14,30 Q14,21 24,19 L56,13 Q66,10 78,10 L168,10 Q184,12 186,26 L186,62 Z",
+          glass:"M31,28 L59,17 L76,17 L76,28 Z M80,17 L106,17 L106,28 Z", fw:52, rw:154 }
 };
 function bodySvg(kind){
-  var p = BODY_PATH[kind] || BODY_PATH.suv;
+  var a = BODY_ART[kind] || BODY_ART.suv;
   var ink = "var(--ink)", bg = "var(--sunken)";
-  return "<svg viewBox='0 0 200 76' role='img' aria-hidden='true' focusable='false'>" +
-    "<path d='"+p+"' fill='"+ink+"' opacity='.82'/>" +
-    "<circle cx='56' cy='58' r='13' fill='"+ink+"'/><circle cx='56' cy='58' r='5.5' fill='"+bg+"'/>" +
-    "<circle cx='150' cy='58' r='13' fill='"+ink+"'/><circle cx='150' cy='58' r='5.5' fill='"+bg+"'/>" +
+  function wheel(cx){
+    return "<circle cx='"+cx+"' cy='62' r='12.5' fill='"+ink+"'/>" +
+           "<circle cx='"+cx+"' cy='62' r='5' fill='"+bg+"'/>";
+  }
+  return "<svg viewBox='0 0 200 80' role='img' aria-hidden='true' focusable='false'>" +
+    "<path d='"+a.body+"' fill='"+ink+"' opacity='.85'/>" +
+    "<path d='"+a.glass+"' fill='"+bg+"' opacity='.9'/>" +
+    wheel(a.fw) + wheel(a.rw) +
     "</svg>";
 }
 function renderLaunch(){
