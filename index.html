@@ -447,6 +447,14 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(
       <div class="srclist" id="topSrc"></div>
     </div>
   </div>
+
+  <h3 class="dash-h" id="shiftTitle">市佔移轉分析</h3>
+  <p class="dash-note" id="shiftNote"></p>
+  <div class="caveat" id="shiftMethod"></div>
+  <div class="chart-box"><canvas id="shiftChart"></canvas></div>
+  <div class="tbl-scroll"><table class="dtable" id="shiftTable"></table></div>
+  <div class="opp-grid" id="shiftReads"></div>
+  <div class="srclist" id="shiftSrc"></div>
 </section>
 
 <!-- ===== 5. CHINESE BRANDS ===== -->
@@ -1247,6 +1255,57 @@ var BRANDS = {
   ]
 };
 
+/* ---------- Where the top ten's share went in 2026 ----------
+   Two methods, because period-matched 2025 figures were obtainable for only
+   three brands. Where both apply (Toyota) the proxy understates the loss
+   -1.00pp against -1.94pp measured, so the proxy rows are conservative:
+   the real erosion is probably larger, not smaller, than shown. */
+var SHIFT = {
+  base26:2156499, base25:1807315, base25fy:2549462,
+  note:"2026 年 1–9 月市佔，對比 2025 年基準。市場同期成長 19.3%（180.7 萬 → 215.6 萬台），所以量成長低於 19.3% 的品牌，即使銷量增加仍在失去市佔。",
+  note_pt:"Participação de jan a set de 2026 contra a base de 2025. O mercado cresceu 19,3% no mesmo intervalo (de 1,807 para 2,156 milhão), de modo que qualquer marca que tenha crescido menos de 19,3% perdeu participação mesmo vendendo mais.",
+  method:"兩種演算法，因為逐期對應的 2025 年 1–9 月數字只取得三家。標「期間對應」者為 2025 年同期實數；標「推算」者以 2025 全年月均對比 2026 年 1–9 月月均，並與市場用同一方法（市場月均 +12.8%）比較。Toyota 兩種都算得出來：期間對應為 −1.94 pp、推算為 −1.00 pp——推算法低估了跌幅，因此推算列的真實流失很可能比表上更大，而非更小。Renault、Jeep、Honda 的 2025 基準未取得，故不列入。",
+  method_pt:"Dois métodos, porque só foi possível obter o jan-set de 2025 de três marcas. As linhas marcadas como período correspondente usam o número real do mesmo intervalo de 2025; as marcadas como estimativa comparam a média mensal de 2025 cheio com a de jan-set de 2026, confrontando-a com o mercado pelo mesmo critério (média mensal do mercado +12,8%). A Toyota admite os dois cálculos: -1,94 pp pelo período correspondente e -1,00 pp pela estimativa — ou seja, a estimativa subestima a queda, e nas linhas estimadas a erosão real é provavelmente maior, não menor. Renault, Jeep e Honda ficam de fora por não termos a base de 2025.",
+  rows:[
+    {name:"BYD",      s25:4.27, s26:7.84, d:3.57,  vol:"+119.1%", v25:"77.198", v26:"169.135", exact:true,  me:true},
+    {name:"GWM",      s25:1.50, s26:2.94, d:1.44,  vol:"+133.5%", v25:"≈27.153", v26:"63.402", exact:true, cn:true, derived:true},
+    {name:"Chevrolet",s25:10.82,s26:10.43,d:-0.39, vol:"+8.7%",   v25:"275.965 (全年)", v25_pt:"275.965 (ano cheio)", v26:"224.948", exact:false},
+    {name:"Volkswagen",s25:17.11,s26:16.26,d:-0.85,vol:"+7.2%",   v25:"436.297 (全年)", v25_pt:"436.297 (ano cheio)", v26:"350.645", exact:false},
+    {name:"Fiat",     s25:20.93,s26:19.57,d:-1.37, vol:"+5.4%",   v25:"533.710 (全年)", v25_pt:"533.710 (ano cheio)", v26:"421.999", exact:false},
+    {name:"Hyundai",  s25:7.99, s26:6.58, d:-1.41, vol:"−7.1%",   v25:"203.579 (全年)", v25_pt:"203.579 (ano cheio)", v26:"141.824", exact:false},
+    {name:"Toyota",   s25:7.64, s26:5.69, d:-1.94, vol:"−11.0%",  v25:"138.028", v26:"122.804", exact:true}
+  ],
+  nodata:["Renault","Jeep","Honda"],
+  reads:[
+    {title:"前五大全數失血，無一例外",title_pt:"As cinco líderes perderam, sem exceção",
+     text:"Fiat、Volkswagen、Chevrolet、Hyundai、Toyota 在 2026 年都掉了市佔。其中只有 Hyundai 與 Toyota 的銷量絕對下滑（−7.1%、−11.0%）；Fiat、VW、Chevrolet 的銷量其實是成長的，但分別只有 +5.4%、+7.2%、+8.7%，遠低於市場的 +19.3%。",
+     text_pt:"Fiat, Volkswagen, Chevrolet, Hyundai e Toyota perderam participação em 2026. Só Hyundai e Toyota recuaram em volume absoluto (-7,1% e -11,0%); Fiat, VW e Chevrolet até cresceram, mas 5,4%, 7,2% e 8,7% respectivamente, bem abaixo dos 19,3% do mercado.",
+     impl:"在高成長市場裡，「銷量成長」不等於「守住地位」。這三家是被成長稀釋，不是被打敗——但結果一樣。",
+     impl_pt:"Num mercado em alta, crescer em volume não é o mesmo que manter posição. Essas três foram diluídas pelo crescimento, não derrotadas — mas o resultado é o mesmo."},
+    {title:"Toyota 是唯一的量價齊跌",title_pt:"A Toyota é a única que caiu nos dois eixos",
+     text:"1–9 月自 138,028 台跌到 122,804 台（−11.0%），市佔自 7.64% 掉到 5.69%，少掉 1.94 個百分點，是本次分析中最大的單一跌幅。這是期間對應的實數，不是推算。",
+     text_pt:"De 138.028 para 122.804 unidades entre jan e set (-11,0%), com a participação caindo de 7,64% para 5,69%, 1,94 ponto a menos — a maior queda isolada desta análise. É número de período correspondente, não estimativa.",
+     impl:"BYD 與 Toyota 的差距已達 46,331 台。Toyota 的混動路線（HEV Flex）在巴西原本是電動化的主流答案，現在被插電與純電兩頭夾擊。",
+     impl_pt:"A diferença entre BYD e Toyota já é de 46.331 unidades. A rota híbrida da Toyota (HEV Flex) era a resposta dominante de eletrificação no Brasil e agora está espremida entre o plug-in e o 100% elétrico."},
+    {title:"接收端幾乎全是中國品牌",title_pt:"Quem recebeu foi, quase todo, o bloco chinês",
+     text:"前十名裡只有 BYD（+3.57 pp）與 GWM（+1.44 pp）在成長。把範圍放大到六家中國品牌，合計市佔自 2025 全年的 9.61% 升到 2026 年 1–9 月的 17.38%，增加 7.78 個百分點；其中 BYD 佔這六家的 45.1%。",
+     text_pt:"No top 10, só BYD (+3,57 pp) e GWM (+1,44 pp) cresceram. Ampliando para as seis marcas chinesas, a participação somada passou de 9,61% em 2025 cheio para 17,38% em jan-set de 2026, mais 7,78 pontos; a BYD responde por 45,1% desse conjunto.",
+     impl:"值得注意的是 BYD 並未拿走中國品牌增量的多數——另外 54.9% 分散在 CAOA Chery、Geely、Omoda & Jaecoo、GAC 等品牌。傳統品牌流失的市佔，不是被單一對手接收。",
+     impl_pt:"Vale notar que a BYD não ficou com a maior parte do avanço chinês: os outros 54,9% se distribuem entre CAOA Chery, Geely, Omoda & Jaecoo e GAC. A participação que saiu das tradicionais não foi absorvida por um único rival."},
+    {title:"兩邊加總對不起來，這是誠實的缺口",title_pt:"Os dois lados não fecham, e a lacuna é declarada",
+     text:"可量測的五家傳統品牌合計流失約 5.96 個百分點，中國品牌合計增加 7.78 個百分點，兩者相差約 1.8 個百分點。差額來自三處：Renault、Jeep、Honda 的 2025 基準未取得；前十名以外的品牌未計入；以及推算法與期間對應法的基準不同。",
+     text_pt:"As cinco tradicionais mensuráveis somam cerca de 5,96 pontos perdidos, enquanto as chinesas ganham 7,78 — uma diferença de cerca de 1,8 ponto. Ela vem de três lugares: não obtivemos a base de 2025 de Renault, Jeep e Honda; marcas fora do top 10 não entram na conta; e os dois métodos usam bases distintas.",
+     impl:"本站不把這個差額湊平。強行讓兩邊相等需要假設，而假設會讓整個分析失去可驗證性。",
+     impl_pt:"Este painel não força o fechamento. Igualar os dois lados exigiria premissas, e premissas tirariam da análise justamente o que a torna verificável."}
+  ],
+  sources:[
+    {label:"Garagem360（jan-set 26 vs 25）",url:"https://garagem360.com.br/byd-cresce-119-em-2026-e-abre-vantagem-de-46-331-carros-sobre-toyota/"},
+    {label:"Vrum（2025 全年）",url:"https://www.vrum.com.br/aceleradas/2026/01/7332166-as-20-marcas-de-carros-que-mais-venderam-no-brasil-em-2025.html"},
+    {label:"Webmotors（2025 市佔）",url:"https://www.webmotors.com.br/wm1/mercado-automotivo/rankings/20-carros-mais-vendidos-brasil-2025"},
+    {label:"Mixvale（市場總量）",url:"https://www.mixvale.com.br/2026/10/05/vendas-de-veiculos-leves-crescem-1616-em-setembro-e-registram-melhor-acumulado-desde-2011-no-pais/"}
+  ]
+};
+
 /* ---------- Chinese brands ---------- */
 var CHINA = {
   /* Monthly brand-level series exists publicly only for BYD. For the other
@@ -1748,6 +1807,15 @@ var UI = {
   tbl_category:{"zh-Hant":"類別","zh-Hans":"类别",en:"Category",pt:"Categoria",ja:"区分"},
   tbl_total:{"zh-Hant":"合計","zh-Hans":"合计",en:"Total",pt:"Total",ja:"合計"},
   tbl_cum:{"zh-Hant":"1–9 月累計","zh-Hans":"1–9 月累计",en:"Jan-Sep",pt:"Acum. jan-set",ja:"1–9月累計"},
+  shift_title:{"zh-Hant":"市佔移轉分析","zh-Hans":"市占移转分析",en:"Where the share went",pt:"Para onde foi a participação",ja:"シェア移動の分析"},
+  shift_delta:{"zh-Hant":"市佔變動","zh-Hans":"市占变动",en:"Share change",pt:"Variação",ja:"シェア変動"},
+  shift_vol:{"zh-Hant":"銷量變動","zh-Hans":"销量变动",en:"Volume change",pt:"Variação de volume",ja:"台数変動"},
+  shift_m:{"zh-Hant":"演算法","zh-Hans":"算法",en:"Method",pt:"Método",ja:"算出方法"},
+  shift_exact:{"zh-Hant":"期間對應","zh-Hans":"期间对应",en:"period-matched",pt:"período correspondente",ja:"同期比較"},
+  shift_proxy:{"zh-Hant":"推算","zh-Hans":"推算",en:"estimated",pt:"estimativa",ja:"推計"},
+  shift_s25:{"zh-Hant":"2025 市佔","zh-Hans":"2025 市占",en:"2025 share",pt:"Part. 2025",ja:"2025シェア"},
+  shift_s26:{"zh-Hant":"2026 1–9 月市佔","zh-Hans":"2026 1–9 月市占",en:"2026 Jan-Sep share",pt:"Part. jan-set 2026",ja:"2026年1–9月シェア"},
+  shift_nodata:{"zh-Hant":"未取得 2025 基準，不列入","zh-Hans":"未取得 2025 基准，不列入",en:"2025 baseline not obtained, excluded",pt:"base de 2025 não apurada, fora da conta",ja:"2025年の基準が未取得のため対象外"},
   cn_chart_title:{"zh-Hant":"上牌趨勢","zh-Hans":"上牌趋势",en:"Registration trend",pt:"Tendência de emplacamentos",ja:"登録台数の推移"},
   cn_tier_title:{"zh-Hant":"品牌分層","zh-Hans":"品牌分层",en:"Brands by tier",pt:"Marcas por camada",ja:"ブランド区分"},
   cn_v_monthly:{"zh-Hant":"月度台數","zh-Hans":"月度台数",en:"Monthly units",pt:"Volume mensal",ja:"月次台数"},
@@ -2194,6 +2262,54 @@ function renderTop10(){
   document.getElementById("topFacts").innerHTML =
     "<ul style='margin:0 0 10px 18px'>"+(fld(sel,"facts")||[]).map(function(f){return "<li style='font-size:13px;line-height:1.6;margin-bottom:3px'>"+esc(f)+"</li>";}).join("")+"</ul>";
   document.getElementById("topSrc").innerHTML=t("sources_lbl")+": "+srcLinks(b.sources);
+  renderShift();
+}
+
+/* ---- Where the top ten's share went ---- */
+function renderShift(){
+  var S = SHIFT; if(!S) return;
+  document.getElementById("shiftTitle").textContent = t("shift_title");
+  document.getElementById("shiftNote").textContent = fld(S,"note");
+  document.getElementById("shiftMethod").innerHTML = "<b>"+esc(t("shift_m"))+"</b>"+esc(fld(S,"method"));
+
+  var rows = S.rows.slice().sort(function(a,b){ return b.d-a.d; });
+  mkChart("shiftChart",{
+    type:"bar",
+    data:{labels:rows.map(function(r){return r.name;}),
+      datasets:[{label:t("shift_delta"),data:rows.map(function(r){return r.d;}),
+        backgroundColor:rows.map(function(r){
+          if(r.d>=0) return r.me ? CHART_PALETTE[0] : (themeDark?"#5FBF97":"#1F7A57");
+          return themeDark?"#D98A7E":"#A8443A";
+        })}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(x){
+        var r=rows[x.dataIndex];
+        return (r.d>=0?"+":"")+r.d.toFixed(2)+" pp · "+r.vol+" · "+(r.exact?t("shift_exact"):t("shift_proxy"));
+      }}}},
+      scales:{x:{ticks:{callback:function(v){return (v>0?"+":"")+v+" pp";}},
+        grid:{color:function(ctx){ return ctx.tick.value===0 ? (themeDark?"rgba(242,242,242,.45)":"rgba(37,39,40,.45)") : undefined; }}}}}
+  });
+
+  var h = "<tr><th>"+esc(t("tbl_brand"))+"</th><th style='text-align:right'>"+esc(t("shift_s25"))+"</th>"+
+          "<th style='text-align:right'>"+esc(t("shift_s26"))+"</th><th style='text-align:right'>"+esc(t("shift_delta"))+"</th>"+
+          "<th style='text-align:right'>"+esc(t("shift_vol"))+"</th><th>"+esc(t("shift_m"))+"</th></tr>";
+  rows.forEach(function(r){
+    var cls = r.d>=0 ? "up" : "down";
+    h += "<tr"+(r.me?" class='me'":"")+"><td><b>"+esc(r.name)+"</b>"+(r.me?" ◆":(r.cn?" ·CN":""))+"</td>"+
+      "<td class='num'>"+r.s25.toFixed(2)+"%</td><td class='num'>"+r.s26.toFixed(2)+"%</td>"+
+      "<td class='num "+cls+"'>"+(r.d>=0?"+":"")+r.d.toFixed(2)+" pp</td>"+
+      "<td class='num "+cls+"'>"+esc(r.vol)+"</td>"+
+      "<td style='font-size:11px;color:var(--faint)'>"+esc(r.exact?t("shift_exact"):t("shift_proxy"))+(r.derived?" *":"")+"</td></tr>";
+  });
+  h += "<tr><td colspan='6' style='font-size:11.5px;color:var(--faint)'>"+
+       esc(S.nodata.join(" · "))+" — "+esc(t("shift_nodata"))+"</td></tr>";
+  document.getElementById("shiftTable").innerHTML = h;
+
+  document.getElementById("shiftReads").innerHTML = S.reads.map(function(r){
+    return "<div class='opp'><h4>"+esc(fld(r,"title"))+"</h4><p>"+esc(fld(r,"text"))+"</p>"+
+      (r.impl?"<div class='impl'><b>◆ "+esc(t("angle"))+"</b>"+esc(fld(r,"impl"))+"</div>":"")+"</div>";
+  }).join("");
+  document.getElementById("shiftSrc").innerHTML = t("sources_lbl")+": "+srcLinks(S.sources);
 }
 
 /* ---- Chinese brands tab ---- */
