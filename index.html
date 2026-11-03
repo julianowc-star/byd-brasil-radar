@@ -244,6 +244,18 @@ h3.dash-h{font-size:17px;font-weight:600;margin-top:30px}
 .caveat{background:var(--warn-bg);border:1px solid var(--warn-line);border-left:2px solid var(--warn);padding:14px 17px;font-size:12.5px;color:#6B5418;margin-bottom:20px;line-height:1.7;max-width:80ch}
 .caveat b{display:block;font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;color:var(--warn)}
 
+/* ---------- entry-point cards ---------- */
+.ent{background:var(--card);padding:19px 20px 20px}
+.ent h4{font-weight:700;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:11px;color:var(--ink)}
+.ent .erow{margin-bottom:10px}
+.ent .ek{display:block;font-size:9.5px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--faint);margin-bottom:3px}
+.ent .ev{font-size:12.5px;color:var(--ink-2);line-height:1.6}
+.ent .eidea{background:var(--sunken);border-left:2px solid var(--ink);padding:12px 14px;margin-top:12px}
+.ent .eidea .ek{color:var(--ink)}
+.ent .eidea .ev{color:var(--ink-2);font-size:13px}
+.ent .ebasis{margin-top:10px;font-size:10.5px;color:var(--faint);line-height:1.5;letter-spacing:.2px}
+.ent.thin .eidea{border-left-color:var(--warn);background:var(--warn-bg)}
+.ent.thin .eidea .ek{color:var(--warn)}
 /* ---------- 2026 launches ---------- */
 .q-head{display:flex;align-items:baseline;gap:12px;margin:30px 0 12px;padding-bottom:9px;border-bottom:1px solid var(--ink)}
 .q-head .qn{font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink)}
@@ -475,6 +487,12 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(
   <h3 class="dash-h" id="cnTierTitle">品牌分層</h3>
   <div class="subnav" id="chinaTypes"></div>
   <div id="chinaBody"></div>
+
+  <h3 class="dash-h" id="entryTitle">品牌切入點</h3>
+  <p class="dash-note" id="entryNote"></p>
+  <div class="caveat" id="entryCaveat"></div>
+  <div class="opp-grid" id="entryGrid" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))"></div>
+  <div class="srclist" id="entrySrc"></div>
 </section>
 
 <!-- ===== 6. REGULATORY ===== -->
@@ -1460,6 +1478,136 @@ var CHINA = {
   ]
 };
 
+/* ---------- Entry-point advice, brand by brand ----------
+   Unlike the rest of this dashboard these are inferences, not reported
+   facts: they read each brand's observable scale and channel behaviour and
+   suggest what follows. Every card states the evidence it rests on, and the
+   brands where the evidence is too thin are grouped and named as such
+   instead of being padded out. */
+var ENTRY = {
+  note:"依各品牌在巴西的現有規模與通路模式，提出行銷或商業模式的切入點建議。依 1–9 月規模排序。",
+  note_pt:"Sugestões de entrada em marketing ou modelo de negócio a partir da escala e do modelo de canal de cada marca no Brasil. Ordenado pelo volume de jan a set.",
+  caveat:"本節與其他分頁性質不同：前面各頁是可查證的數據，這裡是從公開可觀察的規模與通路行為所做的推論，不是各品牌內部策略的已知事實。每則都標明依據，請當作假設來驗證，而非結論。資料不足以提出具體建議的品牌，集中列於最後一張卡並註明原因。",
+  caveat_pt:"Esta seção tem natureza diferente do restante do painel: as outras abas trazem dados verificáveis, enquanto aqui há inferências a partir da escala e do comportamento de canal observáveis publicamente, não fatos conhecidos sobre a estratégia interna de cada marca. Cada card indica em que se apoia; trate como hipótese a verificar, não como conclusão. As marcas sobre as quais não há base suficiente estão reunidas no último card, com o motivo declarado.",
+  items:[
+    {brand:"BYD", scale:"1–9 月 169,135 台 · 市佔 7.84% · 中國品牌板塊的 45.1%",
+     scale_pt:"169.135 unidades jan-set · 7,84% de participação · 45,1% do bloco chinês",
+     model:"自建經銷網＋卡馬薩里在地製造；零利率集中在高價車，走量的 Dolphin Mini 反而是 1.50% 月利率；頭期一律 60–70%",
+     model_pt:"rede própria mais produção local em Camaçari; a taxa zero fica nos modelos caros, enquanto o Dolphin Mini, de volume, sai a 1,50% a.m.; entrada sempre de 60% a 70%",
+     idea:"切入點在頭期門檻，不在補貼金額。目前的方案只接得到有現金的換購族；Hyundai 以 30% 頭期、60 期，Honda 以 0.99%／36 期，守的正是 BYD 接不到的那群人。建議推一個低頭期、長年限的產品線，即使月利率較高——巴西主流購車決策看的是月付，不是總價。第二個切入點是降低單一車型集中度：Dolphin Mini 佔品牌銷量 38.4%，九月零售排名掉到第三，風險已經顯現。",
+     idea_pt:"O ponto de entrada é o patamar da entrada, não o valor do bônus. O pacote atual só alcança o cliente de troca com caixa; a Hyundai se defende com entrada de 30% em 60 meses e a Honda com 0,99% em 36x, exatamente o público que a BYD não atinge. Vale lançar uma linha de entrada baixa e prazo longo, ainda que com taxa mensal maior — no Brasil a decisão de compra se dá pela parcela, não pelo preço total. O segundo ponto é reduzir a concentração: o Dolphin Mini é 38,4% do volume da marca e em setembro o varejo caiu para 3º, então o risco já apareceu.",
+     basis:"依據：十月官方條件表、九月零售排名、Dolphin Mini 佔比",
+     basis_pt:"Base: tabela oficial de condições de outubro, ranking de varejo de setembro e participação do Dolphin Mini"},
+
+    {brand:"GWM", scale:"1–9 月 63,402 台 · 市佔 2.94% · 年增 133.5%，為前十名最快",
+     scale_pt:"63.402 unidades jan-set · 2,94% · alta de 133,5%, a maior do top 10",
+     model:"Iracemápolis 在地生產；十月最大補貼給了油電 SUV Wey 07（R$ 25,000），走量的 Haval H6 只有 R$ 8,000",
+     model_pt:"produção local em Iracemápolis; em outubro o maior bônus foi para o Wey 07, híbrido (R$ 25.000), enquanto o Haval H6, de volume, ficou com R$ 8.000",
+     idea:"補貼配置與規模目標不一致。GWM 是成長最快且有本地產能的一家，這個條件下應該買量而不是買形象——把資源從 Wey 07 移向 H6，用製造成本優勢壓低入門價格，趁 2027 年關稅全面生效前把裝機量做厚。Wey 的高補貼在量能基礎未穩時提前消耗資源。",
+     idea_pt:"A alocação do incentivo não bate com a meta de escala. A GWM é a que mais cresce e tem fábrica local; nessa posição convém comprar volume, não imagem — deslocar recurso do Wey 07 para o H6 e usar a vantagem de custo industrial para baixar o preço de entrada, engrossando a base instalada antes de a tarifa cheia valer em 2027. O bônus alto no Wey consome recurso cedo demais, com a base de volume ainda não consolidada.",
+     basis:"依據：十月促銷條件、1–9 月量能與成長率、Iracemápolis 產能",
+     basis_pt:"Base: condições de outubro, volume e crescimento jan-set, capacidade de Iracemápolis"},
+
+    {brand:"CAOA Chery", scale:"1–9 月 58,041 台 · 市佔 2.69%",
+     scale_pt:"58.041 unidades jan-set · 2,69%",
+     model:"透過 CAOA 集團的既有通路，在地經銷與售後已運作十年以上；Tiggo 系列長期在暢銷榜",
+     model_pt:"opera pela rede já existente do grupo CAOA, com distribuição e pós-venda consolidados há mais de dez anos; a linha Tiggo está sempre entre as mais vendidas",
+     idea:"唯一的結構性資產是通路年資，而那是新進者用錢買不到的。切入點不在上市節奏——在那條賽道它贏不過同集團的 Omoda & Jaecoo——而在把十年車主基數變現：認證中古車、原廠售後、保修續約、以舊換新循環。這些生意新品牌五年內做不出來。風險是品牌形象老化，集團把「新」的形象分配給了 Omoda & Jaecoo，CAOA Chery 需要明確接受「可靠、好修、保值」的定位，而不是跟自家兄弟品牌搶新鮮感。",
+     idea_pt:"O único ativo estrutural é a idade da rede, e isso nenhum entrante compra com dinheiro. O ponto de entrada não está no ritmo de lançamentos — nessa pista ela perde para a Omoda & Jaecoo, do mesmo grupo — e sim em monetizar dez anos de base instalada: seminovos certificados, pós-venda oficial, extensão de garantia e ciclo de troca. São negócios que uma marca nova não constrói em cinco anos. O risco é o envelhecimento da imagem: o grupo alocou o 'novo' à Omoda & Jaecoo, e a CAOA Chery ganha mais assumindo o lugar de confiável, fácil de manter e com valor de revenda do que disputando frescor com a marca irmã.",
+     basis:"依據：集團通路年資、Tiggo 系列排名、同集團品牌分工",
+     basis_pt:"Base: idade da rede do grupo, ranking da linha Tiggo e divisão de papéis entre as marcas do grupo"},
+
+    {brand:"Geely", scale:"1–9 月 37,804 台 · 7 月 8,620 台（曾超越 GWM）→ 9 月 4,691 台，兩個月腰斬",
+     scale_pt:"37.804 unidades jan-set · de 8.620 em julho, à frente da GWM, para 4.691 em setembro — queda de quase metade em dois meses",
+     model:"本品牌與高階純電 Zeekr 雙線；7 月曾進前十",
+     model_pt:"opera a marca própria e a premium elétrica Zeekr; chegou ao top 10 em julho",
+     idea:"這條曲線本身就是診斷。7 月衝上 8,620 台之後兩個月掉到 4,691，跌幅遠大於同期 BYD 的回落，也大於大盤收縮——這不是季節性，比較像是推量動作（車隊、促銷檔期或通路壓貨）結束後的回落。切入點是先確認 7 月的量來自零售還是非零售：若是後者，真實零售基礎遠低於帳面，當務之急是建立可重複的零售需求，而不是再做一次推量。本站無法從公開資料分辨，這是建議先做的內部查核。",
+     idea_pt:"A própria curva é o diagnóstico. Depois de 8.620 unidades em julho, caiu a 4.691 em dois meses, uma retração bem maior que a da BYD no mesmo intervalo e que a contração do mercado — não parece sazonalidade, e sim o fim de uma ação de empurrão (frota, campanha ou estoque na rede). O ponto de entrada é primeiro separar quanto de julho foi varejo e quanto não foi: se a maior parte não foi, a base real de varejo é bem menor que a aparente, e a prioridade passa a ser construir demanda repetível em vez de repetir o empurrão. Não é possível distinguir isso pelos dados públicos; é uma verificação interna a fazer antes de decidir.",
+     basis:"依據：7 月與 9 月單月數字的落差、同期大盤與 BYD 的變化幅度",
+     basis_pt:"Base: diferença entre os números de julho e setembro, comparada à variação do mercado e da BYD no mesmo período"},
+
+    {brand:"Omoda & Jaecoo", scale:"1–9 月 35,081 台 · 2025 全年僅 7,219 台 · 24 州 70＋ 門市",
+     scale_pt:"35.081 unidades jan-set · apenas 7.219 em todo o ano de 2025 · mais de 70 lojas em 24 estados",
+     model:"通路先行：門市數的擴張速度明顯快於銷量；2026 年推三款新車，Jaecoo 5 HEV 8 月上市；曾喊全年 5 萬台",
+     model_pt:"canal primeiro: a abertura de lojas corre bem à frente das vendas; três lançamentos em 2026, com o Jaecoo 5 HEV em agosto, e meta declarada de 50 mil no ano",
+     idea:"已經把通路鋪在需求前面，現在的任務是填滿它，不是再開店。70 家店若單店月銷偏低，固定成本會先吃掉毛利。切入點是單店產出而非覆蓋率：以現有門市為單位做在地化行銷與試駕轉化，並評估是否該暫停展點、把資源轉到既有店的來客量。另一個現實問題是與同集團 CAOA Chery 的客群重疊，兩個品牌在同一價格帶互相稀釋。",
+     idea_pt:"A rede já foi posta à frente da demanda; a tarefa agora é preenchê-la, não abrir mais lojas. Com 70 pontos e venda baixa por loja, o custo fixo come a margem antes de tudo. O ponto de entrada é produtividade por loja, não cobertura: marketing local e conversão de test-drive tomando cada ponto como unidade, e avaliar pausar a expansão para levar recurso ao fluxo das lojas existentes. Há ainda a sobreposição de público com a CAOA Chery, do mesmo grupo: as duas se diluem na mesma faixa de preço.",
+     basis:"依據：門市數與銷量的成長落差、2025 對 2026 的量能跳躍、同集團品牌重疊",
+     basis_pt:"Base: descompasso entre crescimento de lojas e de vendas, salto de volume de 2025 para 2026 e sobreposição com a marca irmã"},
+
+    {brand:"DFM (Dongfeng)", scale:"10 月開始交車 · 57–60 家門市 · 規劃至 2028 年共 11 款",
+     scale_pt:"entregas iniciadas em outubro · entre 57 e 60 lojas · 11 modelos planejados até 2028",
+     model:"三條品牌線（DFM／Voyah／M-Hero）同步鋪開；主打 7 年或 30 萬公里保固",
+     model_pt:"três linhas simultâneas (DFM, Voyah e M-Hero); comunica garantia de 7 anos ou 300 mil km",
+     idea:"保固條件是目前所有中國品牌裡最有結構性的差異化，而且它正面解掉巴西消費者買中國電動車最大的顧慮——殘值與後續維修。切入點就是把它當主軸，而不是拿價格當主軸：BYD 的保證回購有 48,000 公里上限且須換購同級以上車款，DFM 的 30 萬公里不限使用強度，這個對比可以直接做成訴求。風險在於三條品牌線同時開，新品牌最稀缺的是認知度，分散在三個名字上會讓每一個都記不住。",
+     idea_pt:"A garantia é hoje a diferenciação mais estrutural entre as marcas chinesas e ataca de frente a maior objeção do consumidor brasileiro ao elétrico chinês: valor residual e manutenção futura. O ponto de entrada é fazer dela o eixo da comunicação, e não o preço: a recompra da BYD tem teto de 48.000 km e exige troca por modelo igual ou superior, enquanto os 300 mil km da DFM não limitam a intensidade de uso — o contraste rende mensagem direta. O risco é abrir três linhas ao mesmo tempo: o recurso mais escasso de uma marca nova é reconhecimento, e dividi-lo em três nomes faz com que nenhum fixe.",
+     basis:"依據：保固條件對比 BYD 回購條款、三品牌線同步上市",
+     basis_pt:"Base: comparação entre a garantia e as cláusulas de recompra da BYD, e o lançamento simultâneo das três linhas"},
+
+    {brand:"Denza", scale:"9 月 698 台 · 豪華級距市佔 18.4%、排名第二，超越 Mercedes-Benz（496 台）",
+     scale_pt:"698 unidades em setembro · 18,4% do segmento premium e 2º lugar, à frente da Mercedes-Benz (496)",
+     model:"BYD 集團高階品牌；B5 連四個月為豪華級距單一銷量冠軍；Z9 GT 自 R$ 670,000 起；D9 預售中",
+     model_pt:"marca premium do grupo BYD; o B5 lidera o segmento premium há quatro meses; o Z9 GT parte de R$ 670.000; o D9 está em pré-venda",
+     idea:"這是全中國品牌裡唯一已經證明高階可行的案例，切入點是守成而非擴張。B5 的連續冠軍是品牌資產，資源應該先確保它的供給與交期，再談產品線延伸。與 BYD 本品牌的距離要刻意拉開——共用展間或共用話術會把豪華溢價拉回主流定位，這是 Lexus 與 Toyota、Genesis 與 Hyundai 都處理過的同一題。",
+     idea_pt:"É o único caso entre as chinesas que já provou o premium viável, e o ponto de entrada é consolidar, não expandir. A liderança seguida do B5 é ativo de marca: o recurso deve primeiro garantir oferta e prazo de entrega desse modelo, e só depois discutir extensão de linha. A distância para a marca BYD precisa ser deliberada — compartilhar showroom ou discurso traz o prêmio de volta ao posicionamento de massa, o mesmo problema que Lexus e Toyota, ou Genesis e Hyundai, já tiveram de resolver.",
+     basis:"依據：九月豪華級距排名、B5 連續月份、與集團主品牌的關係",
+     basis_pt:"Base: ranking premium de setembro, sequência mensal do B5 e relação com a marca-mãe"},
+
+    {brand:"GAC", scale:"1–9 月 11,413 台 · GS3 於 3 月上市 · 報導稱已超越 Citroën",
+     scale_pt:"11.413 unidades jan-set · GS3 lançado em março · reportagens apontam volume acima da Citroën",
+     model:"單一主力車型帶動，產品線尚窄",
+     model_pt:"crescimento puxado por um modelo principal, com linha ainda estreita",
+     idea:"規模還在「單一車型決定成敗」的階段，切入點是先把 GS3 做深而不是急著加寬。超越 Citroën 這件事行銷上好用，但那是對手萎縮而非自己變強，不宜當成定位基礎。建議把資源放在單一車型的口碑與售後可得性——這個規模的品牌最容易死在「買得到、修不到」。",
+     idea_pt:"A escala ainda está no estágio em que um único modelo decide tudo, e o ponto de entrada é aprofundar o GS3 antes de alargar a linha. Superar a Citroën rende comunicação, mas reflete o encolhimento da concorrente mais que força própria, e não serve de base de posicionamento. O recurso rende mais em reputação do modelo único e disponibilidade de pós-venda — marcas desse porte costumam morrer no 'dá para comprar, não dá para consertar'.",
+     basis:"依據：1–9 月量能、產品線寬度、與 Citroën 的對比性質",
+     basis_pt:"Base: volume jan-set, amplitude de linha e natureza da comparação com a Citroën"},
+
+    {brand:"Leapmotor", scale:"量能未單獨揭露 · Goiana（PE）以 SKD／CKD 生產",
+     scale_pt:"volume não divulgado separadamente · produção SKD/CKD em Goiana (PE)",
+     model:"Stellantis 持股 21%，沿用 Stellantis 既有經銷網路，不自建通路",
+     model_pt:"Stellantis com 21%, usando a rede de concessionárias já existente em vez de construir a própria",
+     idea:"通路成本為零，這是所有中國品牌裡最特殊的條件，切入點應該是把省下的建網成本直接轉成價格競爭力——其他品牌要用三到五年攤提的展點投資，它不必付。真正的風險不在市場而在內部：與 Fiat、Jeep 在同一個展間裡，業務員推哪一台取決於獎金結構而非產品力。建議把重點放在 Stellantis 體系內的激勵設計，那比對外行銷更能決定成敗。",
+     idea_pt:"O custo de canal é zero, condição única entre as chinesas, e o ponto de entrada é converter essa economia em preço: o investimento em rede que as outras amortizam em três a cinco anos, esta não paga. O risco real não é de mercado, é interno — dividindo showroom com Fiat e Jeep, o que o vendedor oferece depende da estrutura de comissão, não do produto. O esforço rende mais no desenho de incentivo dentro do sistema Stellantis do que em comunicação externa.",
+     basis:"依據：Stellantis 持股與通路安排、Goiana 生產計畫",
+     basis_pt:"Base: participação da Stellantis, arranjo de canal e plano de produção em Goiana"},
+
+    {brand:"Zeekr", scale:"累計突破 1,000 台",
+     scale_pt:"mais de 1.000 unidades acumuladas",
+     model:"Geely 體系的高階純電，鎖定 Audi／BMW／Porsche 客群",
+     model_pt:"premium elétrica do grupo Geely, mirando o cliente de Audi, BMW e Porsche",
+     idea:"同集團的 Denza 已經證明中國高階品牌在巴西行得通，Zeekr 的落差不在產品定位而在規模與體驗落地。切入點不是降價——那會立刻失去上探的資格——而是展間與交車體驗的實體投資，以及高階客群最在意的服務可得性。1,000 台的基數還不足以支撐全國佈點，建議先在聖保羅與里約做深，把單點做成標竿，而不是薄薄鋪開。",
+     idea_pt:"A Denza, do grupo rival, já provou que o premium chinês funciona no Brasil; a distância da Zeekr não está no posicionamento, e sim em escala e experiência física. O ponto de entrada não é preço — baixá-lo elimina de imediato a credencial premium — e sim investimento em showroom, entrega e, sobretudo, disponibilidade de serviço, que é o que esse público cobra. Mil unidades não sustentam cobertura nacional: rende mais aprofundar São Paulo e Rio e transformar um ponto em referência do que espalhar fino.",
+     basis:"依據：累計量能、Denza 的對照案例、目標客群",
+     basis_pt:"Base: volume acumulado, o caso comparável da Denza e o público-alvo"},
+
+    {brand:"BAIC", scale:"2026 年底登陸 · 年內 30–50 家經銷點，2027 年底目標 150 家 · 宣示 2030 年前五",
+     scale_pt:"estreia no fim de 2026 · 30 a 50 lojas no ano, 150 até o fim de 2027 · meta de top 5 em 2030",
+     model:"尚未開賣；以通路擴張速度與銷量排名目標作為對外訴求",
+     model_pt:"ainda não vende; comunica-se por metas de expansão de rede e de posição no ranking",
+     idea:"尚未開賣，切入點在於選擇用什麼被評價。「2030 年前五」需要擠掉現在的第 5 到第 7 名，這個目標在達成前只會被當成口號；而「2027 年底 150 家」是可以逐季驗證的。建議對外以通路進度為主要溝通指標，把可驗證的承諾做到，再談排名——新品牌最貴的資產是可信度，而最快的失分方式是訂一個三年後才能驗證的數字。",
+     idea_pt:"Como ainda não vende, o ponto de entrada é escolher por qual métrica ser avaliada. O top 5 em 2030 exige deslocar alguém hoje entre 5º e 7º e, até lá, soa a slogan; já as 150 lojas até o fim de 2027 podem ser conferidas trimestre a trimestre. Comunicar-se pelo avanço da rede, cumprindo o que é verificável antes de falar de ranking, protege o ativo mais caro de uma marca nova, que é credibilidade — e nada a corrói mais rápido que um número só checável daqui a três anos.",
+     basis:"依據：公布的展點與排名目標、尚未開賣的階段",
+     basis_pt:"Base: metas divulgadas de rede e ranking, e o estágio pré-comercial"},
+
+    {brand:"Jetour · MG · Changan／Avatr · JAC · Foton · iCaur · IM Motors · Lepas",
+     brand_pt:"Jetour, MG, Changan/Avatr, JAC, Foton, iCaur, IM Motors e Lepas",
+     scale:"量能未單獨揭露，或尚未開賣",
+     scale_pt:"volume não divulgado separadamente, ou ainda sem operação",
+     model:"本站未取得足以判斷其通路結構與行銷模式的公開資訊",
+     model_pt:"não obtivemos informação pública suficiente sobre estrutura de canal e modelo de marketing",
+     idea:"這八個品牌本站不提出建議。手上只有「有在營運」或「已確認進入」這類狀態資訊，沒有量能、通路產出或促銷條件可供判斷——在這個基礎上寫建議，等於把通用說法套上品牌名，對你沒有用處。要補齊的是各品牌的單月上牌量與展點數；前者需 Fenabrave 分品牌月報，後者需各廠官網或經銷商公會資料。",
+     idea_pt:"Para estas oito marcas não apresentamos recomendação. O que existe são informações de status — em operação ou entrada confirmada — sem volume, produtividade de rede ou condições comerciais que sustentem um julgamento. Escrever recomendação sobre essa base seria encaixar frases genéricas em nomes de marca, o que não serve de nada. O que falta é o emplacamento mensal por marca e o número de pontos de venda: o primeiro vem do relatório mensal da Fenabrave por marca, o segundo dos sites das montadoras ou da federação de concessionárias.",
+     basis:"依據：資料缺口本身",
+     basis_pt:"Base: a própria lacuna de dados", thin:true}
+  ],
+  sources:[
+    {label:"Garagem360（1–9 月分品牌）",url:"https://garagem360.com.br/seis-marcas-chinesas-somam-374-876-carros-ate-setembro/"},
+    {label:"BYD Brasil（官方條件）",url:"https://www.byd.com/br/condicoes"},
+    {label:"Forbes（Denza 豪華排名）",url:"https://forbes.com.br/forbes-life/forbes-motors/2026/10/chinesa-denza-foi-a-segunda-marca-de-carros-premium-mais-vendida-do-brasil-em-setembro/"},
+    {label:"AutoData（DFM）",url:"https://www.autodata.com.br/noticias/2026/08/27/dfm-promete-11-modelos-60-concessionarias-e-producao-local/134096/"}
+  ]
+};
+
 /* ---------- Regulation ---------- */
 var REGDATA = {
   note:"驅動巴西電動車市場結構的法規與稅制。關稅階梯是目前最具決定性的單一變數。",
@@ -1821,6 +1969,10 @@ var UI = {
   shift_s26:{"zh-Hant":"2026 1–9 月市佔","zh-Hans":"2026 1–9 月市占",en:"2026 Jan-Sep share",pt:"Part. jan-set 2026",ja:"2026年1–9月シェア"},
   shift_nodata:{"zh-Hant":"未取得 2025 基準，不列入","zh-Hans":"未取得 2025 基准，不列入",en:"2025 baseline not obtained, excluded",pt:"base de 2025 não apurada, fora da conta",ja:"2025年の基準が未取得のため対象外"},
   cn_chart_title:{"zh-Hant":"上牌趨勢","zh-Hans":"上牌趋势",en:"Registration trend",pt:"Tendência de emplacamentos",ja:"登録台数の推移"},
+  entry_title:{"zh-Hant":"品牌切入點","zh-Hans":"品牌切入点",en:"Entry points by brand",pt:"Pontos de entrada por marca",ja:"ブランド別の切り口"},
+  entry_scale:{"zh-Hant":"規模","zh-Hans":"规模",en:"Scale",pt:"Escala",ja:"規模"},
+  entry_model:{"zh-Hant":"現有模式","zh-Hans":"现有模式",en:"Current model",pt:"Modelo atual",ja:"現行モデル"},
+  entry_idea:{"zh-Hant":"切入點建議","zh-Hans":"切入点建议",en:"Suggested entry point",pt:"Ponto de entrada sugerido",ja:"提案"},
   cn_tier_title:{"zh-Hant":"品牌分層","zh-Hans":"品牌分层",en:"Brands by tier",pt:"Marcas por camada",ja:"ブランド区分"},
   cn_v_monthly:{"zh-Hant":"月度台數","zh-Hans":"月度台数",en:"Monthly units",pt:"Volume mensal",ja:"月次台数"},
   cn_v_share:{"zh-Hant":"合計市佔","zh-Hans":"合计市占",en:"Combined share",pt:"Participação somada",ja:"合計シェア"},
@@ -2395,6 +2547,24 @@ function renderCnChart(){
   document.getElementById("cnChartSrc").innerHTML = t("sources_lbl")+": "+srcLinks(tr.sources);
 }
 
+function renderEntry(){
+  var E = ENTRY; if(!E) return;
+  document.getElementById("entryTitle").textContent = t("entry_title");
+  document.getElementById("entryNote").textContent = fld(E,"note");
+  document.getElementById("entryCaveat").innerHTML = "<b>"+esc(t("caveat_lbl"))+"</b>"+esc(fld(E,"caveat"));
+  document.getElementById("entryGrid").innerHTML = E.items.map(function(x){
+    function row(k,v){ return "<div class='erow'><span class='ek'>"+esc(k)+"</span><span class='ev'>"+esc(v)+"</span></div>"; }
+    return "<div class='ent"+(x.thin?" thin":"")+"'>" +
+      "<h4>"+esc(fld(x,"brand"))+"</h4>" +
+      row(t("entry_scale"), fld(x,"scale")) +
+      row(t("entry_model"), fld(x,"model")) +
+      "<div class='eidea'><span class='ek'>▶ "+esc(t("entry_idea"))+"</span><span class='ev'>"+esc(fld(x,"idea"))+"</span></div>" +
+      "<div class='ebasis'>"+esc(fld(x,"basis"))+"</div>" +
+      "</div>";
+  }).join("");
+  document.getElementById("entrySrc").innerHTML = t("sources_lbl")+": "+srcLinks(E.sources);
+}
+
 function renderChina(){
   var c=CHINA;
   document.getElementById("chinaTitle").textContent=t("tab_china");
@@ -2417,6 +2587,7 @@ function renderChina(){
       "</div>";
   }).join("")+"</div>";
   document.getElementById("chinaBody").innerHTML="<div class='comp-anim'>"+h+"</div>";
+  renderEntry();
 }
 
 /* ---- Regulation tab ---- */
